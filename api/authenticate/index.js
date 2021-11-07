@@ -3,10 +3,12 @@ const router = express.Router();
 const passport = require("../../modules/passport");
 const jwt = require("jsonwebtoken");
 const pool = require("../../config-db");
+const { OAuth2Client } = require('google-auth-library');
+const client = new OAuth2Client(process.env.CLIENT_ID_GOOGLE);
 
 router.post(
   "/",
-  passport.authenticate("local", { session: false }),
+  passport.authenticate("normal_login", { session: false }),
   function (req, res) {
     res.json({
       user: req.user,
@@ -16,5 +18,33 @@ router.post(
     });
   }
 );
+
+router.post(
+  "/google",
+  async function (req, res) {
+    try {
+      const ticket = await client.verifyIdToken({
+        idToken: req.body.token,
+        audience: process.env.CLIENT_ID_GOOGLE
+      });
+      const payload = ticket.getPayload();
+      const user = {
+        id: payload['sub'],
+        first_name: payload['given_name'],
+        last_name: payload['family_name'],
+        name: payload['email'],
+        avatar: payload['picture']
+      };
+      res.json({
+        user: user,
+        token: jwt.sign(user, process.env.ACCESS_TOKEN_SECRET_KEY, {
+          expiresIn: "1h",
+        }),
+      });
+    } catch (error) {
+      console.log(error)
+    }
+  }
+)
 
 module.exports = router;

@@ -9,7 +9,7 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 
 
 passport.use(
-  new LocalStrategy(
+  "normal_login",new LocalStrategy(
     { usernameField: "email", passwordField: "password", session: false },
     async function (email, password, done) {
       await pool
@@ -32,6 +32,31 @@ passport.use(
     }
   )
 );
+
+// passport.use(
+//   "thirdparty_login",new LocalStrategy(
+//     { usernameField: "email", session: false },
+//     async function (email, done) {
+//       await pool
+//         .query(
+//           'SELECT id,first_name,last_name,email FROM "user" WHERE email=$1',
+//           [email]
+//         )
+//         .then((result) => {
+//           if (result.rows.length !== 0) {
+//             return done(null, result.rows[0]);
+//           } else {
+//             return done(null, false, {
+//               message: "Incorrect username or password.",
+//             });
+//           }
+//         })
+//         .catch((err) => {
+//           return done(err);
+//         });
+//     }
+//   )
+// );
 
 const opts = {}
 opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
@@ -74,7 +99,7 @@ passport.use(new GoogleStrategy({
   function (token, tokenSecret, profile, done) {
     console.log(token);
     console.log(tokenSecret);
-    console.log(profile);
+    console.log();
     return done(null, {});
   }
 ));
