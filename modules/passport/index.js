@@ -1,6 +1,7 @@
 const passport = require("passport"),
   LocalStrategy = require("passport-local").Strategy;
 const pool = require("../../config-db");
+const bcrypt = require("bcrypt");
 
 const JwtStrategy = require("passport-jwt").Strategy,
   ExtractJwt = require("passport-jwt").ExtractJwt;
@@ -15,12 +16,24 @@ passport.use(
     async function (email, password, done) {
       await pool
         .query(
-          'SELECT id,first_name,last_name,email FROM "user" WHERE email=$1 and password=$2',
-          [email, password]
+          'SELECT id,first_name,last_name,email,password FROM "user" WHERE email=$1',
+          [email]
         )
-        .then((result) => {
+        .then(async (result) => {
           if (result.rows.length !== 0) {
-            return done(null, result.rows[0]);
+            const validPassword = await bcrypt.compare(password, result.rows[0].password);
+            if (validPassword) {
+              const user = {
+                id: result.rows[0].id,
+                first_name: result.rows[0].first_name,
+                last_name: result.rows[0].last_name,
+                email: result.rows[0].email
+              }
+              return done(null, user);
+            }
+            return done(null, false, {
+              message: "Incorrect username or password.",
+            });
           } else {
             return done(null, false, {
               message: "Incorrect username or password.",

@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const pool = require("../../config-db");
 const { OAuth2Client } = require("google-auth-library");
 const client = new OAuth2Client(process.env.CLIENT_ID_GOOGLE);
+const authModel = require("./authModel");
 
 router.post(
   "/",
@@ -27,12 +28,18 @@ router.post("/google", async function (req, res) {
     });
     const payload = ticket.getPayload();
     const user = {
-      id: payload["sub"],
+      id_provider: payload["sub"],
       first_name: payload["given_name"],
       last_name: payload["family_name"],
-      name: payload["email"],
+      name: payload["name"],
       avatar: payload["picture"],
+      email: payload["email"]
     };
+    const isExist = await authModel.checkExistUserThirdParty(payload["sub"]);
+    if (!isExist)
+    {
+      const isSucess = await authModel.createThirdPartyUser(user);
+    }
     res.json({
       user: user,
       token: jwt.sign(user, process.env.ACCESS_TOKEN_SECRET_KEY, {
