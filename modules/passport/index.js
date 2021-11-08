@@ -21,14 +21,17 @@ passport.use(
         )
         .then(async (result) => {
           if (result.rows.length !== 0) {
-            const validPassword = await bcrypt.compare(password, result.rows[0].password);
+            const validPassword = await bcrypt.compare(
+              password,
+              result.rows[0].password
+            );
             if (validPassword) {
               const user = {
                 id: result.rows[0].id,
                 first_name: result.rows[0].first_name,
                 last_name: result.rows[0].last_name,
-                email: result.rows[0].email
-              }
+                email: result.rows[0].email,
+              };
               return done(null, user);
             }
             return done(null, false, {
@@ -54,18 +57,12 @@ passport.use(
       clientID: process.env.FACEBOOK_CLIENT_ID,
       clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
       fbGraphVersion: "v3.0",
-      passReqToCallback: true,
     },
-    function (req, accessToken, refreshToken, profile, done) {
-      const user = {
-        first_name: profile.name.givenName,
-        last_name: profile.name.familyName,
-        email: profile.emails[0].value,
-      };
+    function (accessToken, refreshToken, profile, done) {
       // User.findOrCreate({ facebookId: profile.id }, function (error, user) {
       //   return done(error, user);
       // });
-      return done(null, user);
+      return done(null, profile);
     }
   )
 );

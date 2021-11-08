@@ -7,6 +7,8 @@ const { OAuth2Client } = require("google-auth-library");
 const client = new OAuth2Client(process.env.CLIENT_ID_GOOGLE);
 const authModel = require("./authModel");
 
+let currentUser = {};
+
 router.post(
   "/",
   passport.authenticate("normal_login", { session: false }),
@@ -33,11 +35,10 @@ router.post("/google", async function (req, res) {
       last_name: payload["family_name"],
       name: payload["name"],
       avatar: payload["picture"],
-      email: payload["email"]
+      email: payload["email"],
     };
     const isExist = await authModel.checkExistUserThirdParty(payload["sub"]);
-    if (!isExist)
-    {
+    if (!isExist) {
       const isSucess = await authModel.createThirdPartyUser(user);
     }
     res.json({
@@ -51,20 +52,43 @@ router.post("/google", async function (req, res) {
   }
 });
 
-router.post("/facebook", function (req, res, next) {
-  passport.authenticate("facebook-token", function (err, user, info) {
-    if (err) res.status(401);
-    if (user) {
-      res.status(200).json({
-        user: user,
-        access_token: jwt.sign(user, process.env.ACCESS_TOKEN_SECRET_KEY, {
-          expiresIn: "1h",
-        }),
-      });
-    } else {
-      res.status(401);
+router.post("/facebook", async function (req, res, next) {
+  await passport.authenticate(
+    "facebook-token",
+    async function (err, user, info) {
+      if (err) res.status(401);
+      if (user) {
+        // console.log(user);
+        const currentUser = {
+          id_provider: user.id,
+          first_name: user.name.givenName,
+          last_name: user.name.familyName,
+          name: user.displayName,
+          avatar: user.photos[0].value,
+          email: user.emails[0].value,
+        };
+        const isExist = await authModel.checkExistUserThirdParty(
+          currentUser.id_provider
+        );
+        if (!isExist) {
+          const isSucess = await authModel.createThirdPartyUser(currentUser);
+        }
+        res.status(200).json({
+          user: currentUser,
+          access_token: jwt.sign(
+            currentUser,
+            process.env.ACCESS_TOKEN_SECRET_KEY,
+            {
+              expiresIn: "1h",
+            }
+          ),
+        });
+        currentUser = user;
+      } else {
+        res.status(401);
+      }
     }
-  })(req, res, next);
+  )(req, res, next);
 });
 
 module.exports = router;
