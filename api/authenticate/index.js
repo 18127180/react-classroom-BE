@@ -33,7 +33,6 @@ router.post("/google", async function (req, res) {
       id_provider: payload["sub"],
       first_name: payload["given_name"],
       last_name: payload["family_name"],
-      name: payload["name"],
       avatar: payload["picture"],
       email: payload["email"],
     };
@@ -63,7 +62,6 @@ router.post("/facebook", async function (req, res, next) {
           id_provider: user.id,
           first_name: user.name.givenName,
           last_name: user.name.familyName,
-          name: user.displayName,
           avatar: user.photos[0].value,
           email: user.emails[0].value,
         };
@@ -83,7 +81,6 @@ router.post("/facebook", async function (req, res, next) {
             }
           ),
         });
-        currentUser = user;
       } else {
         res.status(401);
       }

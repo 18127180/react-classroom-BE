@@ -97,20 +97,39 @@ opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
 opts.secretOrKey = process.env.ACCESS_TOKEN_SECRET_KEY;
 passport.use(
   new JwtStrategy(opts, async function (jwt_payload, done) {
-    await pool
-      .query('SELECT id FROM "user" WHERE id=$1', [jwt_payload.id])
-      .then((result) => {
-        if (result.rows.length !== 0) {
-          return done(null, result.rows[0]);
-        } else {
-          return done(null, false, {
-            message: "Invalid token!",
-          });
-        }
-      })
-      .catch((err) => {
-        return done(err);
-      });
+    if (jwt_payload.id_provider) {
+      await pool
+        .query('SELECT id FROM "user" WHERE provider_id=$1', [
+          jwt_payload.id_provider,
+        ])
+        .then((result) => {
+          if (result.rows.length !== 0) {
+            return done(null, result.rows[0]);
+          } else {
+            return done(null, false, {
+              message: "Invalid token!",
+            });
+          }
+        })
+        .catch((err) => {
+          return done(err);
+        });
+    } else {
+      await pool
+        .query('SELECT id FROM "user" WHERE id=$1', [jwt_payload.id])
+        .then((result) => {
+          if (result.rows.length !== 0) {
+            return done(null, result.rows[0]);
+          } else {
+            return done(null, false, {
+              message: "Invalid token!",
+            });
+          }
+        })
+        .catch((err) => {
+          return done(err);
+        });
+    }
   })
 );
 
