@@ -42,7 +42,7 @@ router.post("/google", async function (req, res) {
     }
     res.json({
       user: user,
-      token: jwt.sign(user, process.env.ACCESS_TOKEN_SECRET_KEY, {
+      access_token: jwt.sign(user, process.env.ACCESS_TOKEN_SECRET_KEY, {
         expiresIn: "1h",
       }),
     });
