@@ -12,4 +12,8 @@ router.get("/", validateJWT, classController.listClassByUserId);
 
 router.post("/", validateJWT, classController.create);
 
+router.post("/invite", classController.invite);
+
+router.get("/detail/:id", classController.getDetailClass);
+
 module.exports = router;

@@ -33,3 +33,15 @@ exports.create = async (classObj) => {
     return err;
   }
 };
+
+exports.getDetailClass = async (id) => {
+  try {
+    const records = await pool.query(
+      "select * from classroom c where c.id=$1",
+      [Number(id)]
+    );
+    return records.rows[0];
+  } catch (err) {
+    return err;
+  }
+};

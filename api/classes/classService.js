@@ -1,4 +1,5 @@
 const classModel = require("./classModel");
+const axios = require("axios");
 
 exports.list = async () => {
   const data = await classModel.list();
@@ -12,5 +13,43 @@ exports.listClassByUserId = async (userId) => {
 
 exports.create = async (classObj) => {
   const data = await classModel.create(classObj);
+  return data;
+};
+
+exports.inviteByMail = async (senderEmail) => {
+  axios({
+    method: "post",
+    url: "https://api.sendgrid.com/v3/mail/send",
+    headers: {
+      Authorization:
+        "Bearer " + process.env.KEY_API_EMAIL
+    },
+    data: {
+      personalizations: [
+        {
+          to: [
+            {
+              email: senderEmail,
+              name: "abhishek"
+            }
+          ],
+          subject: `SendGrid Template Demo`,
+          dynamic_template_data: {
+            teacher: "phuc",
+            api_join_class: "http://localhost:3000/login"
+          }
+        }
+      ],
+      from: {
+        email: "phucyugi@gmail.com",
+        name: "Okay Dexter"
+      },
+      template_id: process.env.TEMPLATE_ID
+    }
+  })
+}
+
+exports.getDetailClass = async (id) => {
+  const data = await classModel.getDetailClass(id);
   return data;
 };
