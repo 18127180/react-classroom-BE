@@ -56,6 +56,7 @@ passport.use(
     {
       clientID: process.env.FACEBOOK_CLIENT_ID,
       clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
+      profileFields: ["id", "email", "name", "gender", "picture"],
       fbGraphVersion: "v3.0",
     },
     function (accessToken, refreshToken, profile, done) {

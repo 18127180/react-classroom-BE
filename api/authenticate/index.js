@@ -57,12 +57,12 @@ router.post("/facebook", async function (req, res, next) {
     async function (err, user, info) {
       if (err) res.status(401);
       if (user) {
-        // console.log(user);
+        console.log(user);
         const currentUser = {
           id_provider: user.id,
           first_name: user.name.givenName,
           last_name: user.name.familyName,
-          avatar: user.photos[0].value,
+          avatar: user._json.picture.data.url,
           email: user.emails[0].value,
         };
         const isExist = await authModel.checkExistUserThirdParty(
