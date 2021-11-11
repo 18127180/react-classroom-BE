@@ -39,16 +39,20 @@ router.post("/google", async function (req, res) {
     //   const isSucess = await authModel.createThirdPartyUser(user);
     // }
     const isExist = await authModel.checkExistUserGoogle(payload["email"]);
+    const isSuccess = {};
     if (isExist && isExist.provider_id_gg === null) {
       //exist with other authentication
       console.log("update thirdparty user");
       console.log(isExist);
-      const isSucess = await authModel.updateUserGoogle(user, isExist);
+      isSuccess = await authModel.updateUserGoogle(user, isExist);
     } else if (!isExist) {
       //not exist
       console.log("add thirdparty user");
-      const isSucess = await authModel.createUserGoogle(user);
+      isSuccess = await authModel.createUserGoogle(user);
     }
+    console.log("isExist", isExist);
+    console.log("isSuccess", isSuccess);
+    user["id"] = isExist.id || isSuccess.id;
     res.json({
       user: user,
       access_token: jwt.sign(user, process.env.ACCESS_TOKEN_SECRET_KEY, {
@@ -66,7 +70,6 @@ router.post("/facebook", async function (req, res, next) {
     async function (err, user, info) {
       if (err) res.status(401);
       if (user) {
-        console.log(user);
         const currentUser = {
           id_provider: user.id,
           first_name: user.name.givenName,
@@ -83,13 +86,15 @@ router.post("/facebook", async function (req, res, next) {
         const isExist = await authModel.checkExistUserFacebook(
           currentUser.email
         );
+        const isSuccess = {};
         if (isExist && isExist.provider_id_gg === null) {
           //exist with other authentication
-          const isSucess = await authModel.updateUserFacebook(user, isExist);
+          isSuccess = await authModel.updateUserFacebook(user, isExist);
         } else if (!isExist) {
           //not exist
-          const isSucess = await authModel.createUserFacebook(user);
+          isSuccess = await authModel.createUserFacebook(user);
         }
+        currentUser["id"] = isExist.id || isSuccess.id;
         res.status(200).json({
           user: currentUser,
           access_token: jwt.sign(
