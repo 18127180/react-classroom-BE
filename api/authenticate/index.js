@@ -81,7 +81,7 @@ router.post("/facebook", async function (req, res, next) {
         //   const isSucess = await authModel.createThirdPartyUser(currentUser);
         // }
         const isExist = await authModel.checkExistUserFacebook(
-          payload["email"]
+          currentUser.email
         );
         if (isExist && isExist.provider_id_gg === null) {
           //exist with other authentication
