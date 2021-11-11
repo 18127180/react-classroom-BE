@@ -57,7 +57,7 @@ passport.use(
       clientID: process.env.FACEBOOK_CLIENT_ID,
       clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
       profileFields: ["id", "email", "name", "gender", "picture"],
-      fbGraphVersion: "v3.0",
+      fbGraphVersion: "v12.0",
     },
     function (accessToken, refreshToken, profile, done) {
       // User.findOrCreate({ facebookId: profile.id }, function (error, user) {
@@ -100,9 +100,10 @@ passport.use(
   new JwtStrategy(opts, async function (jwt_payload, done) {
     if (jwt_payload.id_provider) {
       await pool
-        .query('SELECT id FROM "user" WHERE provider_id=$1', [
-          jwt_payload.id_provider,
-        ])
+        .query(
+          'SELECT id FROM "user" WHERE provider_id_fb=$1 or provider_id_gg=$2',
+          [jwt_payload.id_provider, jwt_payload.id_provider]
+        )
         .then((result) => {
           if (result.rows.length !== 0) {
             return done(null, result.rows[0]);

@@ -7,8 +7,6 @@ const { OAuth2Client } = require("google-auth-library");
 const client = new OAuth2Client(process.env.CLIENT_ID_GOOGLE);
 const authModel = require("./authModel");
 
-let currentUser = {};
-
 router.post(
   "/",
   passport.authenticate("normal_login", { session: false }),
@@ -36,9 +34,20 @@ router.post("/google", async function (req, res) {
       avatar: payload["picture"],
       email: payload["email"],
     };
-    const isExist = await authModel.checkExistUserThirdParty(payload["sub"]);
-    if (!isExist) {
-      const isSucess = await authModel.createThirdPartyUser(user);
+    // const isExist = await authModel.checkExistUserThirdParty(payload["sub"]);
+    // if (!isExist) {
+    //   const isSucess = await authModel.createThirdPartyUser(user);
+    // }
+    const isExist = await authModel.checkExistUserGoogle(payload["email"]);
+    if (isExist && isExist.provider_id_gg === null) {
+      //exist with other authentication
+      console.log("update thirdparty user");
+      console.log(isExist);
+      const isSucess = await authModel.updateUserGoogle(user, isExist);
+    } else if (!isExist) {
+      //not exist
+      console.log("add thirdparty user");
+      const isSucess = await authModel.createUserGoogle(user);
     }
     res.json({
       user: user,
@@ -65,11 +74,21 @@ router.post("/facebook", async function (req, res, next) {
           avatar: user._json.picture.data.url,
           email: user.emails[0].value,
         };
-        const isExist = await authModel.checkExistUserThirdParty(
-          currentUser.id_provider
+        // const isExist = await authModel.checkExistUserThirdParty(
+        //   currentUser.id_provider
+        // );
+        // if (!isExist) {
+        //   const isSucess = await authModel.createThirdPartyUser(currentUser);
+        // }
+        const isExist = await authModel.checkExistUserFacebook(
+          payload["email"]
         );
-        if (!isExist) {
-          const isSucess = await authModel.createThirdPartyUser(currentUser);
+        if (isExist && isExist.provider_id_gg === null) {
+          //exist with other authentication
+          const isSucess = await authModel.updateUserFacebook(user, isExist);
+        } else if (!isExist) {
+          //not exist
+          const isSucess = await authModel.createUserFacebook(user);
         }
         res.status(200).json({
           user: currentUser,
