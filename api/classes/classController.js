@@ -8,6 +8,16 @@ exports.list = async (req, res) => {
   }
 };
 
+exports.listClassByUserId = async (req, res) => {
+  console.log(req.user);
+  const classes = await classService.listClassByUserId(req.user.id);
+  if (classes) {
+    res.status(200).json(classes);
+  } else {
+    res.status(404).json({ message: "Error!" });
+  }
+};
+
 exports.create = async (req, res) => {
   const classObj = {
     section: req.body.section,

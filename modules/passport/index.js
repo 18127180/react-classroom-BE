@@ -68,31 +68,6 @@ passport.use(
   )
 );
 
-// passport.use(
-//   "thirdparty_login",new LocalStrategy(
-//     { usernameField: "email", session: false },
-//     async function (email, done) {
-//       await pool
-//         .query(
-//           'SELECT id,first_name,last_name,email FROM "user" WHERE email=$1',
-//           [email]
-//         )
-//         .then((result) => {
-//           if (result.rows.length !== 0) {
-//             return done(null, result.rows[0]);
-//           } else {
-//             return done(null, false, {
-//               message: "Incorrect username or password.",
-//             });
-//           }
-//         })
-//         .catch((err) => {
-//           return done(err);
-//         });
-//     }
-//   )
-// );
-
 const opts = {};
 opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
 opts.secretOrKey = process.env.ACCESS_TOKEN_SECRET_KEY;
@@ -134,16 +109,6 @@ passport.use(
     }
   })
 );
-
-// passport.use(new MailruStrategy({
-//   clientID: "780592097647-hif1svldddrkc4jpojqc44paile3l8da.apps.googleusercontent.com",
-//   clientSecret: "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",
-//   callbackURL: "http://localhost:3000/"
-// },
-//   function (accessToken, refreshToken, profile, cb) {
-//     return null;
-//   }
-// ));
 
 passport.use(
   new GoogleStrategy(

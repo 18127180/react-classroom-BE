@@ -8,7 +8,7 @@ const validateJWT = (req, res, next) => {
   } else next();
 };
 
-router.get("/", validateJWT, classController.list);
+router.get("/", validateJWT, classController.listClassByUserId);
 
 router.post("/", validateJWT, classController.create);
 
