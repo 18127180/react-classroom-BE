@@ -12,6 +12,7 @@ exports.listClassByUserId = async (userId) => {
 };
 
 exports.create = async (teacher_id, classObj) => {
+  classObj["invitecode"] = Math.random().toString(36).substring(2, 8);
   const data = await classModel.createClass(classObj);
   if (data) {
     const result = await classModel.createTeacherForClass(teacher_id, data.id);
