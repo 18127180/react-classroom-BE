@@ -13,7 +13,7 @@ router.post(
   function (req, res) {
     res.json({
       user: req.user,
-      token: jwt.sign(req.user, process.env.ACCESS_TOKEN_SECRET_KEY, {
+      access_token: jwt.sign(req.user, process.env.ACCESS_TOKEN_SECRET_KEY, {
         expiresIn: "1h",
       }),
     });
