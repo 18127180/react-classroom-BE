@@ -22,15 +22,31 @@ exports.listClassByUserId = async (userId) => {
   }
 };
 
-exports.create = async (classObj) => {
+exports.createClass = async (classObj) => {
   try {
     const records = await pool.query(
-      "insert into classroom(section,topic,room,name) values($1,$2,$3,$4)",
-      [classObj.section, classObj.topic, classObj.room, classObj.name]
+      "insert into classroom(name,section,topic,description) values($1,$2,$3,$4) returning *",
+      [classObj.name, classObj.section, classObj.topic, classObj.description]
     );
-    return records;
+    if (records.rowCount !== 0) return records.rows[0];
+    return null;
   } catch (err) {
-    return err;
+    console.log(err);
+    return null;
+  }
+};
+
+exports.createTeacherForClass = async (teacher_id, class_id) => {
+  try {
+    const records = await pool.query(
+      "insert into class_teacher(class_id, teacher_id) values($1,$2) returning id",
+      [class_id, teacher_id]
+    );
+    if (records.rowCount !== 0) return records.rows[0];
+    return null;
+  } catch (err) {
+    console.log(err);
+    return null;
   }
 };
 
