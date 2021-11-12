@@ -7,6 +7,7 @@ exports.joinClassByEmail = async (req, res) => {
       const link = process.env.FRONTEND_HOST+"/detail-classroom/" + data.id_class;
       res.redirect(link);
     } else {
-      res.status(404).json({ message: "Error!" });
+        const link = process.env.FRONTEND_HOST+"/login";
+        res.redirect(link);
     }
   }
