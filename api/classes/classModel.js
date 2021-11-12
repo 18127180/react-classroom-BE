@@ -67,3 +67,54 @@ exports.getDetailClass = async (id) => {
     return err;
   }
 };
+
+exports.joinClass = async (class_id, student_id, status) => {
+  try{
+    const records = await pool.query(
+      "insert into class_student(class_id, student_id, status) values($1,$2,$3) returning id",
+      [class_id,student_id,status]
+    );
+    if (records.rowCount !== 0) return records.rows[0];
+    return null;
+  }catch(error){
+    console.log(error);
+    return null;
+  }
+}
+
+exports.checkExistStudentInClass = async (class_id, student_id) => {
+  try{
+    const records = await pool.query(
+      "select * from class_student where class_id = $1 and student_id = $2",
+      [class_id,student_id]
+    );
+    console.log(records.rowCount);
+    return records.rowCount;
+  }catch(error){
+    return null;
+  }
+}
+
+exports.getUserDataByEmail = async (email) => {
+  try{
+    const records = await pool.query(
+      'select * from "user" u where u.email = $1',
+      [email]
+    );
+    return records.rows[0];
+  }catch(error){
+    return null;
+  }
+}
+
+exports.getClassDataByInviteCode = async (invite_code) =>{
+  try{
+    const records = await pool.query(
+      "select * from classroom c where c.invitecode = $1",
+      [invite_code]
+    );
+    return records.rows[0];
+  }catch(error){
+    return null;
+  }
+}

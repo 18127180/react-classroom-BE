@@ -1,4 +1,8 @@
 const classService = require("./classService");
+const open = require('open');
+const jwt = require("jsonwebtoken");
+const axios = require("axios");
+
 exports.list = async (req, res) => {
   const classes = await classService.list();
   if (classes) {
@@ -33,7 +37,7 @@ exports.create = async (req, res) => {
 };
 
 exports.invite = async (req, res) => {
-  const isSuccess = classService.inviteByMail(req.body.email);
+  const isSuccess = classService.inviteByMail(req.body.email, req.body.invite_code);
   console.log(isSuccess);
   if (isSuccess) {
     res.status(201).json({ message: "Send mail success!" });
@@ -50,3 +54,21 @@ exports.getDetailClass = async (req, res) => {
     res.status(404).json({ message: "Error!" });
   }
 };
+
+exports.joinClass = async (req, res) => {
+  const isSuccess = await classService.joinClass(req.query.email, req.query.invite_code, "ACCESS");
+  if (isSuccess) {
+    res.status(201).json({ message: "Join class success!" });
+  } else {
+    res.status(404).json({ message: "Error!" });
+  }
+}
+
+exports.joinClassByEmail = async (req, res) => {
+  const isSuccess = await classService.joinClass(req.query.email, req.query.invite_code, "EMAIL_PENDING");
+  if (isSuccess) {
+    res.status(201).json({ message: "Join class success!" });
+  } else {
+    res.status(404).json({ message: "Error!" });
+  }
+}

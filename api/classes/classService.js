@@ -20,7 +20,7 @@ exports.create = async (teacher_id, classObj) => {
   return data;
 };
 
-exports.inviteByMail = async (senderEmail) => {
+exports.inviteByMail = async (senderEmail, invite_code) => {
   axios({
     method: "post",
     url: "https://api.sendgrid.com/v3/mail/send",
@@ -39,7 +39,7 @@ exports.inviteByMail = async (senderEmail) => {
           subject: `SendGrid Template Demo`,
           dynamic_template_data: {
             teacher: "phuc",
-            api_join_class: "http://localhost:3000/login",
+            api_join_class: process.env.CALL_BACK_SEND_MAIL_API + `email=` + senderEmail + `&invite_code=` + invite_code,
           },
         },
       ],
@@ -56,3 +56,17 @@ exports.getDetailClass = async (id) => {
   const data = await classModel.getDetailClass(id);
   return data;
 };
+
+exports.joinClass = async (email, invite_code, status) => {
+  const dataClass = await classModel.getUserDataByEmail(email);
+  const dataStudent = await classModel.getClassDataByInviteCode(invite_code);
+  if (!dataClass || !dataStudent) {
+    return null;
+  }
+  const isExist = await classModel.checkExistStudentInClass(dataClass.id, dataStudent.id);
+  if (isExist) {
+    return null;
+  }
+  const data = await classModel.joinClass(dataClass.id, dataStudent.id, status);
+  return data;
+}
