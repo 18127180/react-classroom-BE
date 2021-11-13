@@ -1,21 +1,24 @@
 const classModel = require('../classes/classModel')
 
-exports.joinClass = async (email, invite_code, status) => {
-    const dataClass = await classModel.getUserDataByEmail(email);
-    const dataStudent = await classModel.getClassDataByInviteCode(invite_code);
+exports.joinClass = async (email, invite_code) => {
+    const dataStudent = await classModel.getUserDataByEmail(email);
+    const dataClass = await classModel.getClassDataByInviteCode(invite_code);
+    let data = null;
     if (!dataClass || !dataStudent) {
-      return null;
+        return null;
     }
-    const isExist = await classModel.checkExistStudentInClass(dataClass.id, dataStudent.id);
+    const isExist = await classModel.checkExistTeacherInClass(dataClass.id, dataStudent.id);
     if (isExist) {
-      return null;
+        data = {
+            id_class: dataClass.id
+        }
+        return data;
     }
-    let data = await classModel.joinClass(dataClass.id, dataStudent.id, status);
+    data = await classModel.joinClassByTeacherRole(dataClass.id, dataStudent.id);
     if (data) {
-      data = {
-        id_class: dataClass.id
-      }
+        data = {
+            id_class: dataClass.id
+        }
     }
     return data;
-  }
-  
+}

@@ -12,7 +12,7 @@ router.get("/", validateJWT, classController.listClassByUserId);
 
 router.post("/", validateJWT, classController.create);
 
-router.post("/invite", validateJWT,classController.invite);
+router.post("/invite_teacher", validateJWT,classController.invite);
 
 router.get("/detail/:id", validateJWT,classController.getDetailClass);
 
