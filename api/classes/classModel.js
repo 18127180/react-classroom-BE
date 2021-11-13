@@ -12,7 +12,7 @@ exports.list = async () => {
 exports.listClassByUserId = async (userId) => {
   try {
     const records = await pool.query(
-      "select * from classroom c inner join (select a.class_id as teacher,b.class_id as student from (select class_id from class_student where student_id = $1) a full join (select class_id from class_teacher where teacher_id = $1 ) b on a.class_id=b.class_id) d on c.id=d.teacher or c.id=d.student ",
+      "select * from classroom c inner join (select a.class_id as student,b.class_id as teacher from (select class_id from class_student where student_id = $1) a full join (select class_id from class_teacher where teacher_id = $1 ) b on a.class_id=b.class_id) d on c.id=d.teacher or c.id=d.student ",
       [userId]
     );
     if (records.rowCount > 0) return records.rows;
