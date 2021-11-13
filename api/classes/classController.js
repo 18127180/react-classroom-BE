@@ -29,12 +29,15 @@ exports.create = async (req, res) => {
   if (isSuccess) {
     res.status(201).json(isSuccess);
   } else {
-    res.status(404).json({ message: "Error!" });
+    res.status(500).json({ message: "Error!" });
   }
 };
 
 exports.invite = async (req, res) => {
-  const isSuccess = classService.inviteByMail(req.body.email, req.body.invite_code);
+  const isSuccess = classService.inviteByMail(
+    req.body.email,
+    req.body.invite_code
+  );
   if (isSuccess) {
     res.status(201).json({ message: "Send mail success!" });
   } else {
@@ -52,10 +55,13 @@ exports.getDetailClass = async (req, res) => {
 };
 
 exports.joinClass = async (req, res) => {
-  const isSuccess = await classService.joinClass(req.query.email, req.query.invite_code);
+  const isSuccess = await classService.joinClass(
+    req.query.email,
+    req.query.invite_code
+  );
   if (isSuccess) {
     res.status(201).json({ message: "Join class success!" });
   } else {
     res.status(404).json({ message: "Error!" });
   }
-}
+};

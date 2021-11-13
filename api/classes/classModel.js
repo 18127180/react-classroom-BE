@@ -12,7 +12,7 @@ exports.list = async () => {
 exports.listClassByUserId = async (userId) => {
   try {
     const records = await pool.query(
-      "select * from classroom c inner join (select a.class_id as teach,b.class_id as student from (select class_id from class_student where student_id = $1) a full join (select class_id from class_teacher where teacher_id = $1 ) b on a.class_id=b.class_id) d on c.id=d.teach or c.id=d.student ",
+      "select * from classroom c inner join (select a.class_id as teacher,b.class_id as student from (select class_id from class_student where student_id = $1) a full join (select class_id from class_teacher where teacher_id = $1 ) b on a.class_id=b.class_id) d on c.id=d.teacher or c.id=d.student ",
       [userId]
     );
     if (records.rowCount > 0) return records.rows;
@@ -69,103 +69,103 @@ exports.getDetailClass = async (id) => {
 };
 
 exports.joinClass = async (class_id, student_id) => {
-  try{
+  try {
     const records = await pool.query(
       `insert into class_student(class_id, student_id) values($1,$2) returning id`,
-      [class_id,student_id]
+      [class_id, student_id]
     );
     if (records.rowCount !== 0) return records.rows[0];
     return null;
-  }catch(error){
+  } catch (error) {
     console.log(error);
     return null;
   }
-}
+};
 
 exports.joinClassByTeacherRole = async (class_id, student_id) => {
-  try{
+  try {
     const records = await pool.query(
       "insert into class_teacher(class_id, teacher_id) values($1,$2) returning id",
-      [class_id,student_id]
+      [class_id, student_id]
     );
     if (records.rowCount !== 0) return records.rows[0];
     return null;
-  }catch(error){
+  } catch (error) {
     console.log(error);
     return null;
   }
-}
+};
 
 exports.checkExistStudentInClass = async (class_id, student_id) => {
-  try{
+  try {
     const records = await pool.query(
       "select * from class_student where class_id = $1 and student_id = $2",
-      [class_id,student_id]
+      [class_id, student_id]
     );
     console.log(records.rowCount);
     return records.rowCount;
-  }catch(error){
+  } catch (error) {
     return null;
   }
-}
+};
 
 exports.checkExistTeacherInClass = async (class_id, student_id) => {
-  try{
+  try {
     const records = await pool.query(
       "select * from class_teacher where class_id = $1 and teacher_id = $2",
-      [class_id,student_id]
+      [class_id, student_id]
     );
     console.log(records.rowCount);
     return records.rowCount;
-  }catch(error){
+  } catch (error) {
     return null;
   }
-}
+};
 
 exports.getUserDataByEmail = async (email) => {
-  try{
+  try {
     const records = await pool.query(
       'select * from "user" u where u.email = $1',
       [email]
     );
     return records.rows[0];
-  }catch(error){
+  } catch (error) {
     return null;
   }
-}
+};
 
-exports.getClassDataByInviteCode = async (invite_code) =>{
-  try{
+exports.getClassDataByInviteCode = async (invite_code) => {
+  try {
     const records = await pool.query(
       "select * from classroom c where c.invitecode = $1",
       [invite_code]
     );
     return records.rows[0];
-  }catch(error){
+  } catch (error) {
     return null;
   }
-}
+};
 
-exports.getDataStudentsByClassId = async (class_id) =>{
-  try{
+exports.getDataStudentsByClassId = async (class_id) => {
+  try {
     const records = await pool.query(
       'select u.first_name, u.last_name, u.avatar from class_student cs join "user" u on cs.student_id = u.id where class_id = $1',
       [class_id]
     );
     return records.rows;
-  }catch(error){
+  } catch (error) {
     return null;
   }
-}
+};
 
-exports.getDataTeachersByClassId = async (class_id) =>{
-  try{
+exports.getDataTeachersByClassId = async (class_id) => {
+  try {
     const records = await pool.query(
       'select u.first_name, u.last_name, u.avatar from class_teacher cs join "user" u on cs.teacher_id = u.id where class_id = $1',
       [class_id]
     );
     return records.rows;
-  }catch(error){
+  } catch (error) {
     return null;
   }
-}
+};
