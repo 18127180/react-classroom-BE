@@ -34,14 +34,11 @@ exports.create = async (req, res) => {
 };
 
 exports.invite = async (req, res) => {
-  const isSuccess = classService.inviteByMail(
-    req.body.email,
-    req.body.invite_code
-  );
-  if (isSuccess) {
+  const error_list = await classService.inviteByMail(req.body.list_email, req.body.invite_code);
+  if (!error_list.length) {
     res.status(201).json({ message: "Send mail success!" });
   } else {
-    res.status(404).json({ message: "Error!" });
+    res.status(404).json({ message: "Error!", list_error: error_list});
   }
 };
 
@@ -55,10 +52,7 @@ exports.getDetailClass = async (req, res) => {
 };
 
 exports.joinClass = async (req, res) => {
-  const isSuccess = await classService.joinClass(
-    req.query.email,
-    req.query.invite_code
-  );
+  const isSuccess = await classService.joinClass(req.body.email, req.body.invite_code);
   if (isSuccess) {
     res.status(201).json({ message: "Join class success!" });
   } else {

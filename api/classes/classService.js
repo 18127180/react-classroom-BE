@@ -23,11 +23,13 @@ exports.create = async (teacher_id, classObj) => {
   return data;
 };
 
-exports.inviteByMail = async (sender_teacher_email, invite_code) => {
-  const senderDataUser = await classModel.getUserDataByEmail(
-    sender_teacher_email
-  );
+
+const send_single_mail = async (sender_teacher_email, invite_code) =>{
+  const senderDataUser = await classModel.getUserDataByEmail(sender_teacher_email);
   const classData = await classModel.getClassDataByInviteCode(invite_code);
+  if (!senderDataUser || !classData){
+    return null;
+  }
   sendMail.setApiKey(process.env.KEY_API_EMAIL);
   const msg = {
     to: {
@@ -39,25 +41,30 @@ exports.inviteByMail = async (sender_teacher_email, invite_code) => {
     },
     template_id: process.env.TEMPLATE_ID,
     dynamic_template_data: {
-      invite_teacher:
-        senderDataUser.first_name + " " + senderDataUser.last_name,
-      api_join_class:
-        process.env.CALL_BACK_SEND_MAIL_API +
-        `email=` +
-        sender_teacher_email +
-        `&invite_code=` +
-        invite_code,
-      class_name: classData.name,
+      invite_teacher: senderDataUser.first_name + " "+senderDataUser.last_name,
+      api_join_class: process.env.CALL_BACK_SEND_MAIL_API + `email=` + sender_teacher_email + `&invite_code=` + invite_code,
+      class_name: classData.name
     },
-  };
-  sendMail
-    .send(msg)
+    hideWarnings: true
+  }
+  return sendMail.send(msg)
     .then((response) => {
-      return response;
+      return true;
     })
     .catch((error) => {
-      return null;
-    });
+      return false;
+    })
+}
+
+exports.inviteByMail = async (list_email, invite_code) => {
+  const error_list = [];
+  for (const item of list_email){
+    const isSucess = await send_single_mail(item,invite_code);
+    if (!isSucess){
+      error_list.push(item);
+    };
+  }
+  return error_list;
 };
 
 //process.env.CALL_BACK_SEND_MAIL_API + `email=` + senderEmail + `&invite_code=` + invite_code
@@ -70,16 +77,17 @@ exports.getDetailClass = async (id) => {
 };
 
 exports.joinClass = async (email, invite_code) => {
-  const dataClass = await classModel.getUserDataByEmail(email);
-  const dataStudent = await classModel.getClassDataByInviteCode(invite_code);
+  const dataStudent = await classModel.getUserDataByEmail(email);
+  const dataClass = await classModel.getClassDataByInviteCode(invite_code);
   if (!dataClass || !dataStudent) {
     return null;
   }
-  const isExist = await classModel.checkExistStudentInClass(
-    dataClass.id,
-    dataStudent.id
-  );
-  if (isExist) {
+  const isExistStudent = await classModel.checkExistStudentInClass(dataClass.id, dataStudent.id);
+  if (isExistStudent) {
+    return null;
+  }
+  const isExistTeacher = await classModel.checkExistTeacherInClass(dataClass.id, dataStudent.id);
+  if (isExistTeacher){
     return null;
   }
   const data = await classModel.joinClass(dataClass.id, dataStudent.id);
