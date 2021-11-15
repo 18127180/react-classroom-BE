@@ -1,7 +1,7 @@
 const userModel = require("./userModel");
 const jwt = require("jsonwebtoken");
 
-exports.udpateProfile = async (userObj) => {
+exports.updateProfile = async (userObj) => {
   const ifExistStudentId = await userModel.checkStudentId(userObj.student_id);
   if (ifExistStudentId && ifExistStudentId.id !== userObj.id) return null;
   else {
