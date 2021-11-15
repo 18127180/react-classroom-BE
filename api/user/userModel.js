@@ -14,3 +14,15 @@ exports.updateProfile = async (userObj) => {
     return err;
   }
 };
+
+exports.checkStudentId = async (student_id) => {
+  try {
+    const records = await pool.query(`SELECT * FROM "user" WHERE student_id=$1`, [student_id]);
+    if (records.rowCount === 0) {
+      return null;
+    }
+    return records.rows[0];
+  } catch (err) {
+    return err;
+  }
+};
