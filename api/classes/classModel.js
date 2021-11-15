@@ -15,8 +15,18 @@ exports.listClassByUserId = async (userId) => {
       "select * from classroom c inner join (select a.class_id as student,b.class_id as teacher from (select class_id from class_student where student_id = $1) a full join (select class_id from class_teacher where teacher_id = $1 ) b on a.class_id=b.class_id) d on c.id=d.teacher or c.id=d.student ",
       [userId]
     );
-    if (records.rowCount > 0) return records.rows;
+    if (records.rowCount >= 0) return records.rows;
     return null;
+  } catch (err) {
+    return err;
+  }
+};
+
+exports.getListStudentByClassId = async (class_id) => {
+  try {
+    const records = await pool.query(`select u.id,u.first_name ,u.last_name from class_student cs join "user" u on cs.student_id = u.id where cs.class_id = $1`
+    ,[class_id]);
+    return records.rows;
   } catch (err) {
     return err;
   }
@@ -149,7 +159,7 @@ exports.getClassDataByInviteCode = async (invite_code) => {
 exports.getDataStudentsByClassId = async (class_id) => {
   try {
     const records = await pool.query(
-      'select u.first_name, u.last_name, u.avatar from class_student cs join "user" u on cs.student_id = u.id where class_id = $1',
+      'select u.id, u.first_name, u.last_name, u.avatar,u.student_id from class_student cs join "user" u on cs.student_id = u.id where class_id = $1',
       [class_id]
     );
     return records.rows;
@@ -161,7 +171,7 @@ exports.getDataStudentsByClassId = async (class_id) => {
 exports.getDataTeachersByClassId = async (class_id) => {
   try {
     const records = await pool.query(
-      'select u.first_name, u.last_name, u.avatar from class_teacher cs join "user" u on cs.teacher_id = u.id where class_id = $1',
+      'select u.id, u.first_name, u.last_name, u.avatar from class_teacher cs join "user" u on cs.teacher_id = u.id where class_id = $1',
       [class_id]
     );
     return records.rows;
@@ -169,3 +179,16 @@ exports.getDataTeachersByClassId = async (class_id) => {
     return null;
   }
 };
+
+exports.removeStudentInClass = async (class_id, student_id) => {
+  try{
+    const records = await pool.query(
+      `delete from class_student cs where cs.class_id = $1 and cs.student_id = $2`,
+      [class_id,student_id]
+    );
+    return records;
+  }catch (error){
+    return error;
+  }
+}
+

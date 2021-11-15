@@ -15,6 +15,12 @@ exports.joinClass = async (email, invite_code) => {
         }
         return data;
     }
+    const isExistStudent = await classModel.checkExistStudentInClass(dataClass.id, dataStudent.id);
+    console.log(isExistStudent);
+    if (isExistStudent) {
+        const result = await classModel.removeStudentInClass(dataClass.id, dataStudent.id);
+        console.log(result);
+    }
     data = await classModel.joinClassByTeacherRole(dataClass.id, dataStudent.id);
     if (data) {
         data = {

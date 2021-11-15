@@ -55,7 +55,7 @@ exports.invite_student = async (req, res) => {
 };
 
 exports.getDetailClass = async (req, res) => {
-  const isSuccess = await classService.getDetailClass(req.params.id);
+  const isSuccess = await classService.getDetailClass(req.params.id, req.user.id);
   if (isSuccess) {
     res.status(200).json(isSuccess);
   } else {

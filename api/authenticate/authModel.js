@@ -39,7 +39,7 @@ exports.checkExistUserGoogle = async (email) => {
 
 exports.updateUserGoogle = async (userObj, lastUserObj) => {
   try {
-    const sql = `update "user" set ${
+    let sql = `update "user" set ${
       !lastUserObj.first_name && 'first_name="' + userObj.first_name + '",'
     }${!lastUserObj.last_name && 'last_name="' + userObj.last_name + '",'}${
       !lastUserObj.avatar && 'avatar="' + userObj.avatar + '",'
@@ -60,7 +60,7 @@ exports.updateUserGoogle = async (userObj, lastUserObj) => {
 exports.createUserGoogle = async (userObj) => {
   try {
     const records = await pool.query(
-      'insert into "user" (first_name,last_name,email,avatar,provider_id_gg) values($1,$2,$3,$4,$5)',
+      'insert into "user" (first_name,last_name,email,avatar,provider_id_gg) values($1,$2,$3,$4,$5) returning *',
       [
         userObj.first_name,
         userObj.last_name,
@@ -115,7 +115,7 @@ exports.updateUserFacebook = async (userObj, lastUserObj) => {
 exports.createUserFacebook = async (userObj) => {
   try {
     const records = await pool.query(
-      'insert into "user" (first_name,last_name,email,avatar,provider_id_fb) values($1,$2,$3,$4,$5)',
+      'insert into "user" (first_name,last_name,email,avatar,provider_id_fb) values($1,$2,$3,$4,$5) returning *',
       [
         userObj.first_name,
         userObj.last_name,

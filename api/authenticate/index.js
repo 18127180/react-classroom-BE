@@ -35,24 +35,21 @@ router.post("/google", async function (req, res) {
     //   const isSucess = await authModel.createThirdPartyUser(user);
     // }
     const isExist = await authModel.checkExistUserGoogle(payload["email"]);
-    const isSuccess = {};
+    let isSuccess = {};
     if (isExist && isExist.provider_id_gg === null) {
       //exist with other authentication
-      console.log("update thirdparty user");
-      console.log(isExist);
       isSuccess = await authModel.updateUserGoogle(user, isExist);
     } else if (!isExist) {
       //not exist
       console.log("add thirdparty user");
       isSuccess = await authModel.createUserGoogle(user);
     }
-    console.log("isExist", isExist);
-    console.log("isSuccess", isSuccess);
-    user["id"] = isExist.id || isSuccess.id;
-    user["first_name"] = isExist.first_name || isSuccess.first_name;
-    user["last_name"] = isExist.last_name || isSuccess.last_name;
-    user["avatar"] = isExist.avatar || isSuccess.avatar;
-    user["student_id"] = isExist.student_id || isSuccess.student_id;
+    user["id"] = isExist?.id || isSuccess?.id;
+    user["first_name"] = isExist?.first_name || isSuccess?.first_name;
+    user["last_name"] = isExist?.last_name || isSuccess?.last_name;
+    user["avatar"] = isExist?.avatar || isSuccess?.avatar;
+    user["student_id"] = isExist?.student_id || isSuccess?.student_id;
+    console.log(user);
     res.json({
       user: user,
       access_token: jwt.sign(user, process.env.ACCESS_TOKEN_SECRET_KEY, {
