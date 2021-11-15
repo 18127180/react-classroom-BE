@@ -1,21 +1,21 @@
 require("dotenv").config();
-const createError = require('http-errors');
-const express = require('express');
-const path = require('path');
-const cookieParser = require('cookie-parser');
-const logger = require('morgan');
+const createError = require("http-errors");
+const express = require("express");
+const path = require("path");
+const cookieParser = require("cookie-parser");
+const logger = require("morgan");
 // const pgp = require('pg-promise')();
 const passport = require("./modules/passport");
 
-const indexRouter = require('./routes/index');
-const usersRouter = require('./routes/users');
-const classroomRouter = require('./api/classes');
-const registerRouter = require('./api/auth');
-const authRouter = require('./api/authenticate');
-const sendMailRouter = require('./api/sendMail');
+const indexRouter = require("./routes/index");
+const classroomRouter = require("./api/classes");
+const registerRouter = require("./api/auth");
+const authRouter = require("./api/authenticate");
+const sendMailRouter = require("./api/sendMail");
+const userRouter = require("./api/user");
 
 const app = express();
-app.disable('etag');
+app.disable("etag");
 app.use(passport.initialize());
 const cors = require("cors");
 
@@ -42,11 +42,15 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);
-app.use("/users", usersRouter);
-app.use("/classroom",passport.authenticate('jwt',{session:false}), classroomRouter);
+app.use("/user", passport.authenticate("jwt", { session: false }), userRouter);
+app.use(
+  "/classroom",
+  passport.authenticate("jwt", { session: false }),
+  classroomRouter
+);
 app.use("/sendMail", sendMailRouter);
 app.use("/auth", authRouter);
-app.use('/register',registerRouter);
+app.use("/register", registerRouter);
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
   next(createError(404));
