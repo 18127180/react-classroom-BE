@@ -42,6 +42,15 @@ exports.invite = async (req, res) => {
   }
 };
 
+exports.invite_student = async (req, res) => {
+  const error_list = await classService.inviteByMailToStudent(req.body.list_email, req.body.invite_code);
+  if (!error_list.length) {
+    res.status(201).json({ message: "Send mail success!" });
+  } else {
+    res.status(404).json({ message: "Error!", list_error: error_list});
+  }
+};
+
 exports.getDetailClass = async (req, res) => {
   const isSuccess = await classService.getDetailClass(req.params.id);
   if (isSuccess) {

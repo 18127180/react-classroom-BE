@@ -14,6 +14,8 @@ router.post("/", validateJWT, classController.create);
 
 router.post("/invite_teacher", validateJWT,classController.invite);
 
+router.post("/invite_student", validateJWT,classController.invite_student);
+
 router.get("/detail/:id", validateJWT,classController.getDetailClass);
 
 router.post("/join", validateJWT,classController.joinClass);

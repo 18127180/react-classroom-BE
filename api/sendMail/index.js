@@ -4,4 +4,6 @@ const sendMailController = require('./sendMailController');
 
 router.get("/",sendMailController.joinClassByEmail);
 
+router.get("/invite-student",sendMailController.joinClassByEmailStudent)
+
 module.exports = router;
