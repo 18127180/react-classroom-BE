@@ -18,16 +18,15 @@ exports.create = async (teacher_id, classObj) => {
   const data = await classModel.createClass(classObj);
   if (data) {
     const result = await classModel.createTeacherForClass(teacher_id, data.id);
-    if (result) return null;
+    if (result) return data;
   }
-  return data;
+  return null;
 };
 
-
-const send_single_mail = async (sender_teacher_email, invite_code, call_back_api, template) =>{
+const send_single_mail = async (sender_teacher_email, invite_code, call_back_api, template) => {
   const senderDataUser = await classModel.getUserDataByEmail(sender_teacher_email);
   const classData = await classModel.getClassDataByInviteCode(invite_code);
-  if (!senderDataUser || !classData){
+  if (!senderDataUser || !classData) {
     return null;
   }
   sendMail.setApiKey(process.env.KEY_API_EMAIL);
@@ -41,39 +40,51 @@ const send_single_mail = async (sender_teacher_email, invite_code, call_back_api
     },
     template_id: template,
     dynamic_template_data: {
-      invite_teacher: senderDataUser.first_name + " "+senderDataUser.last_name,
-      api_join_class: call_back_api + `email=` + sender_teacher_email + `&invite_code=` + invite_code,
-      class_name: classData.name
+      invite_teacher: senderDataUser.first_name + " " + senderDataUser.last_name,
+      api_join_class:
+        call_back_api + `email=` + sender_teacher_email + `&invite_code=` + invite_code,
+      class_name: classData.name,
     },
-    hideWarnings: true
-  }
-  return sendMail.send(msg)
+    hideWarnings: true,
+  };
+  return sendMail
+    .send(msg)
     .then((response) => {
       return true;
     })
     .catch((error) => {
       return false;
-    })
-}
+    });
+};
 
 exports.inviteByMail = async (list_email, invite_code) => {
   const error_list = [];
-  for (const item of list_email){
-    const isSucess = await send_single_mail(item,invite_code, process.env.CALL_BACK_SEND_MAIL_API, process.env.TEMPLATE_ID);
-    if (!isSucess){
+  for (const item of list_email) {
+    const isSucess = await send_single_mail(
+      item,
+      invite_code,
+      process.env.CALL_BACK_SEND_MAIL_API,
+      process.env.TEMPLATE_ID
+    );
+    if (!isSucess) {
       error_list.push(item);
-    };
+    }
   }
   return error_list;
 };
 
 exports.inviteByMailToStudent = async (list_email, invite_code) => {
   const error_list = [];
-  for (const item of list_email){
-    const isSucess = await send_single_mail(item,invite_code, process.env.CALL_BACK_API_STUDENT, process.env.TEMPLATE_ID_STUDENT);
-    if (!isSucess){
+  for (const item of list_email) {
+    const isSucess = await send_single_mail(
+      item,
+      invite_code,
+      process.env.CALL_BACK_API_STUDENT,
+      process.env.TEMPLATE_ID_STUDENT
+    );
+    if (!isSucess) {
       error_list.push(item);
-    };
+    }
   }
   return error_list;
 };
@@ -98,7 +109,7 @@ exports.joinClass = async (email, invite_code) => {
     return null;
   }
   const isExistTeacher = await classModel.checkExistTeacherInClass(dataClass.id, dataStudent.id);
-  if (isExistTeacher){
+  if (isExistTeacher) {
     return null;
   }
   const data = await classModel.joinClass(dataClass.id, dataStudent.id);

@@ -38,16 +38,19 @@ exports.invite = async (req, res) => {
   if (!error_list.length) {
     res.status(201).json({ message: "Send mail success!" });
   } else {
-    res.status(404).json({ message: "Error!", list_error: error_list});
+    res.status(404).json({ message: "Error!", list_error: error_list });
   }
 };
 
 exports.invite_student = async (req, res) => {
-  const error_list = await classService.inviteByMailToStudent(req.body.list_email, req.body.invite_code);
+  const error_list = await classService.inviteByMailToStudent(
+    req.body.list_email,
+    req.body.invite_code
+  );
   if (!error_list.length) {
     res.status(201).json({ message: "Send mail success!" });
   } else {
-    res.status(404).json({ message: "Error!", list_error: error_list});
+    res.status(404).json({ message: "Error!", list_error: error_list });
   }
 };
 
