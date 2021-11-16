@@ -59,9 +59,14 @@ const send_single_mail = async (sender_teacher_email, invite_code, call_back_api
 
 exports.inviteByMail = async (list_email, invite_code) => {
   const error_list = [];
-  for (const item of list_email){
-    const isSucess = await send_single_mail(item.email,invite_code, process.env.CALL_BACK_SEND_MAIL_API, process.env.TEMPLATE_ID);
-    if (!isSucess){
+  for (const item of list_email) {
+    const isSucess = await send_single_mail(
+      item.email,
+      invite_code,
+      process.env.CALL_BACK_SEND_MAIL_API,
+      process.env.TEMPLATE_ID
+    );
+    if (!isSucess) {
       error_list.push(item);
     }
   }
@@ -70,9 +75,14 @@ exports.inviteByMail = async (list_email, invite_code) => {
 
 exports.inviteByMailToStudent = async (list_email, invite_code) => {
   const error_list = [];
-  for (const item of list_email){
-    const isSucess = await send_single_mail(item.email,invite_code, process.env.CALL_BACK_API_STUDENT, process.env.TEMPLATE_ID_STUDENT);
-    if (!isSucess){
+  for (const item of list_email) {
+    const isSucess = await send_single_mail(
+      item.email,
+      invite_code,
+      process.env.CALL_BACK_API_STUDENT,
+      process.env.TEMPLATE_ID_STUDENT
+    );
+    if (!isSucess) {
       error_list.push(item);
     }
   }
@@ -81,17 +91,24 @@ exports.inviteByMailToStudent = async (list_email, invite_code) => {
 
 //process.env.CALL_BACK_SEND_MAIL_API + `email=` + senderEmail + `&invite_code=` + invite_code
 
-exports.getDetailClass = async (id,user_id) => {
+exports.getDetailClass = async (id, user_id) => {
   const data = await classModel.getDetailClass(id);
   data["studentList"] = await classModel.getDataStudentsByClassId(id);
   data["teacherList"] = await classModel.getDataTeachersByClassId(id);
-  const isExist = await classModel.checkExistTeacherInClass(id,user_id);
-  if (isExist)
-  {
-    data["isTeacher"] = true;
-  }else{
+  if (data.studentList.find((s) => s.id == user_id)) {
     data["isTeacher"] = false;
+  } else if (data.teacherList.find((t) => t.id == user_id)) {
+    data["isTeacher"] = true;
+  } else {
+    return null;
   }
+  // const isExist = await classModel.checkExistTeacherInClass(id,user_id);
+  // if (isExist)
+  // {
+  //   data["isTeacher"] = true;
+  // }else{
+  //   data["isTeacher"] = false;
+  // }
   return data;
 };
 
