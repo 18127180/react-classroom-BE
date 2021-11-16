@@ -6,4 +6,8 @@ router.get("/",sendMailController.joinClassByEmail);
 
 router.get("/invite-student",sendMailController.joinClassByEmailStudent)
 
+router.post("/accept-student",sendMailController.acceptStudent);
+
+router.post("/accept-teacher",sendMailController.acceptTeacher);
+
 module.exports = router;

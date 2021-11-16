@@ -1,17 +1,14 @@
 const classModel = require('../classes/classModel')
 
 //can xu ly
-exports.joinClass = async (email, invite_code) => {
+exports.joinClass = async (email, class_id) => {
     const dataStudent = await classModel.getUserDataByEmail(email);
-    const dataClass = await classModel.getClassDataByInviteCode(invite_code);
+    const dataClass = await classModel.getClassDataById(class_id);
+    console.log(dataStudent);
+    console.log(dataClass);
     let data = null;
-    if (!dataClass) {
+    if (!dataClass || !dataStudent) {
         return null;
-    }
-    if (!dataStudent){
-        return {
-            id_class: dataClass.id
-        };
     }
     const isExist = await classModel.checkExistTeacherInClass(dataClass.id, dataStudent.id);
     if (isExist) {
@@ -21,10 +18,8 @@ exports.joinClass = async (email, invite_code) => {
         return data;
     }
     const isExistStudent = await classModel.checkExistStudentInClass(dataClass.id, dataStudent.id);
-    console.log(isExistStudent);
     if (isExistStudent) {
         const result = await classModel.removeStudentInClass(dataClass.id, dataStudent.id);
-        console.log(result);
     }
     data = await classModel.joinClassByTeacherRole(dataClass.id, dataStudent.id);
     if (data) {
@@ -32,21 +27,17 @@ exports.joinClass = async (email, invite_code) => {
             id_class: dataClass.id
         }
     }
+    const result = await classModel.removeQueueUser(dataStudent.email,"TEACHER",dataClass.id);
     return data;
 }
 
 
-exports.joinClassByStudentRole = async (email, invite_code) => {
+exports.joinClassByStudentRole = async (email, class_id) => {
     const dataStudent = await classModel.getUserDataByEmail(email);
-    const dataClass = await classModel.getClassDataByInviteCode(invite_code);
+    const dataClass = await classModel.getClassDataById(class_id);
     let data = null;
-    if (!dataClass) {
+    if (!dataClass || !dataStudent) {
         return null;
-    }
-    if (!dataStudent){
-        return {
-            id_class: dataClass.id
-        };
     }
     const isExist = await classModel.checkExistStudentInClass(dataClass.id, dataStudent.id);
     if (isExist) {
@@ -68,5 +59,6 @@ exports.joinClassByStudentRole = async (email, invite_code) => {
             id_class: dataClass.id
         }
     }
+    const result = await classModel.removeQueueUser(dataStudent.email,"STUDENT",dataClass.id);
     return data;
 }

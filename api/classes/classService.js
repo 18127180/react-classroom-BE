@@ -23,15 +23,31 @@ exports.create = async (teacher_id, classObj) => {
   return null;
 };
 
-const send_single_mail = async (sender_teacher_email, invite_code, call_back_api, template) => {
+const send_single_mail = async (sender_teacher_email, invite_code, call_back_api, template, role) => {
   const senderDataUser = await classModel.getUserDataByEmail(sender_teacher_email);
   let nameUser = "";
-  if (senderDataUser) {
+  if (!senderDataUser) {
+
+  }else{
     nameUser = senderDataUser.first_name + " " + senderDataUser.last_name
   }
   const classData = await classModel.getClassDataByInviteCode(invite_code);
   if (!classData) {
     return null;
+  }
+  if (role == "TEACHER" && senderDataUser)
+  {
+    const checkExistTeacher = await classModel.checkExistTeacherInClass(classData.id,senderDataUser);
+    if (checkExistTeacher) return null;
+  }
+  if (role == "STUDENT" && senderDataUser){
+    const checkExistStudent = await classModel.checkExistStudentInClass(classData.id,senderDataUser);
+    if (checkExistStudent) return null;
+  }
+  const isExist = await classModel.checkQueueUser(email,class_id,role);
+  if (!isExist)
+  {
+    const result = await classModel.addQueueUser(sender_teacher_email,role,classData.id);
   }
   sendMail.setApiKey(process.env.KEY_API_EMAIL);
   const msg = {
@@ -46,7 +62,7 @@ const send_single_mail = async (sender_teacher_email, invite_code, call_back_api
     dynamic_template_data: {
       invite_teacher: nameUser,
       api_join_class:
-        call_back_api + `email=` + sender_teacher_email + `&invite_code=` + invite_code,
+        call_back_api + `email=` + sender_teacher_email + `&class_id=` + classData.id,
       class_name: classData.name,
     },
     hideWarnings: true,
@@ -68,7 +84,8 @@ exports.inviteByMail = async (list_email, invite_code) => {
       item.email,
       invite_code,
       process.env.CALL_BACK_SEND_MAIL_API,
-      process.env.TEMPLATE_ID
+      process.env.TEMPLATE_ID,
+      "TEACHER"
     );
     if (!isSucess) {
       error_list.push(item);
@@ -84,7 +101,8 @@ exports.inviteByMailToStudent = async (list_email, invite_code) => {
       item.email,
       invite_code,
       process.env.CALL_BACK_API_STUDENT,
-      process.env.TEMPLATE_ID_STUDENT
+      process.env.TEMPLATE_ID_STUDENT,
+      "STUDENT"
     );
     if (!isSucess) {
       error_list.push(item);
@@ -145,3 +163,28 @@ exports.joinClass = async (email, invite_code) => {
   }
   return data;
 };
+
+exports.checkQueueUser = async (email, class_id, role) =>{
+  const result = await classModel.checkQueueUser(email,class_id,role);
+  return result;
+}
+
+exports.addQueueUser = async (email, class_id, role) =>{
+  const dataUser = await classModel.getUserDataByEmail(email);
+  if (!dataUser)
+  {
+    return null;
+  }
+  const isExistStudent = await classModel.checkExistStudentInClass(class_id,dataUser.id);
+  const isExistTeacher = await classModel.checkExistTeacherInClass(class_id,dataUser.id);
+  if (isExistStudent || isExistTeacher){
+    return null;
+  }
+  const isExist = await classModel.checkQueueUser(email,class_id,role);
+  let result = true;
+  if (!isExist)
+  {
+    result = await classModel.addQueueUser(email,role,class_id);
+  }
+  return result;
+}

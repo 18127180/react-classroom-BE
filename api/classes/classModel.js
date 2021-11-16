@@ -25,7 +25,7 @@ exports.listClassByUserId = async (userId) => {
 exports.getListStudentByClassId = async (class_id) => {
   try {
     const records = await pool.query(`select u.id,u.first_name ,u.last_name from class_student cs join "user" u on cs.student_id = u.id where cs.class_id = $1`
-    ,[class_id]);
+      , [class_id]);
     return records.rows;
   } catch (err) {
     return err;
@@ -156,6 +156,18 @@ exports.getClassDataByInviteCode = async (invite_code) => {
   }
 };
 
+exports.getClassDataById = async (class_id) => {
+  try {
+    const records = await pool.query(
+      "select * from classroom c where c.id = $1",
+      [class_id]
+    );
+    return records.rows[0];
+  } catch (error) {
+    return null;
+  }
+};
+
 exports.getDataStudentsByClassId = async (class_id) => {
   try {
     const records = await pool.query(
@@ -181,14 +193,50 @@ exports.getDataTeachersByClassId = async (class_id) => {
 };
 
 exports.removeStudentInClass = async (class_id, student_id) => {
-  try{
+  try {
     const records = await pool.query(
       `delete from class_student cs where cs.class_id = $1 and cs.student_id = $2`,
-      [class_id,student_id]
+      [class_id, student_id]
     );
     return records;
-  }catch (error){
+  } catch (error) {
     return error;
+  }
+}
+
+exports.addQueueUser = async (email, role, class_id) => {
+  try {
+    const records = await pool.query(
+      `insert into invite_queue(email,role,class_id) values($1,$2,$3)`,
+      [email, role, class_id]
+    )
+    return records;
+  } catch (error) {
+    return error;
+  }
+}
+
+exports.removeQueueUser = async (email, role, class_id) => {
+  try {
+    const records = await pool.query(
+      `delete from invite_queue where email = $1 and role = $2 and class_id = $3`,
+      [email, role, class_id]
+    )
+    return records;
+  } catch (error) {
+    return error;
+  }
+}
+
+exports.checkQueueUser = async (email, class_id, role) => {
+  try {
+    const records = await pool.query(
+      `select * from invite_queue where email = $1 and class_id = $2 and role = $3`,
+      [email, class_id, role]
+    )
+    return records.rowCount;
+  } catch (error) {
+    return null;
   }
 }
 

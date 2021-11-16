@@ -57,10 +57,9 @@ exports.invite_student = async (req, res) => {
 exports.getDetailClass = async (req, res) => {
   const isSuccess = await classService.getDetailClass(req.params.id, req.user.id);
   if (isSuccess) {
-    if (isSuccess == 403)
-    {
-      res.status(403).json({message: "Dont have permission"});
-    }else{
+    if (isSuccess == 403) {
+      res.status(403).json({ message: "Dont have permission" });
+    } else {
       res.status(200).json(isSuccess);
     }
   } else {
@@ -76,3 +75,21 @@ exports.joinClass = async (req, res) => {
     res.status(404).json({ message: "Error!" });
   }
 };
+
+exports.checkQueueUser = async (req, res) => {
+  const isSuccess = await classService.checkQueueUser(req.body.email, req.body.class_id, req.body.role);
+  if (isSuccess) {
+    res.status(200).json({ message: "Permission!" });
+  } else {
+    res.status(404).json({ message: "Error!" });
+  }
+}
+
+exports.addQueueUser = async (req, res) => {
+  const isSuccess = await classService.addQueueUser(req.body.email, req.body.class_id, req.body.role);
+  if (isSuccess) {
+    res.status(200).json({ message: "Add queue success!" });
+  } else {
+    res.status(404).json({ message: "Error!" });
+  }
+}
