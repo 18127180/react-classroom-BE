@@ -25,8 +25,12 @@ exports.create = async (teacher_id, classObj) => {
 
 const send_single_mail = async (sender_teacher_email, invite_code, call_back_api, template) => {
   const senderDataUser = await classModel.getUserDataByEmail(sender_teacher_email);
+  let nameUser = "";
+  if (senderDataUser) {
+    nameUser = senderDataUser.first_name + " " + senderDataUser.last_name
+  }
   const classData = await classModel.getClassDataByInviteCode(invite_code);
-  if (!senderDataUser || !classData) {
+  if (!classData) {
     return null;
   }
   sendMail.setApiKey(process.env.KEY_API_EMAIL);
@@ -40,7 +44,7 @@ const send_single_mail = async (sender_teacher_email, invite_code, call_back_api
     },
     template_id: template,
     dynamic_template_data: {
-      invite_teacher: senderDataUser.first_name + " " + senderDataUser.last_name,
+      invite_teacher: nameUser,
       api_join_class:
         call_back_api + `email=` + sender_teacher_email + `&invite_code=` + invite_code,
       class_name: classData.name,
@@ -115,17 +119,29 @@ exports.getDetailClass = async (id, user_id) => {
 exports.joinClass = async (email, invite_code) => {
   const dataStudent = await classModel.getUserDataByEmail(email);
   const dataClass = await classModel.getClassDataByInviteCode(invite_code);
+  let data = null;
   if (!dataClass || !dataStudent) {
     return null;
   }
-  const isExistStudent = await classModel.checkExistStudentInClass(dataClass.id, dataStudent.id);
-  if (isExistStudent) {
-    return null;
+  const isExist = await classModel.checkExistStudentInClass(dataClass.id, dataStudent.id);
+  if (isExist) {
+    data = {
+      id_class: dataClass.id
+    }
+    return data;
   }
   const isExistTeacher = await classModel.checkExistTeacherInClass(dataClass.id, dataStudent.id);
   if (isExistTeacher) {
-    return null;
+    data = {
+      id_class: dataClass.id
+    }
+    return data;
   }
-  const data = await classModel.joinClass(dataClass.id, dataStudent.id);
+  data = await classModel.joinClass(dataClass.id, dataStudent.id);
+  if (data) {
+    data = {
+      id_class: dataClass.id
+    }
+  }
   return data;
 };

@@ -57,7 +57,12 @@ exports.invite_student = async (req, res) => {
 exports.getDetailClass = async (req, res) => {
   const isSuccess = await classService.getDetailClass(req.params.id, req.user.id);
   if (isSuccess) {
-    res.status(200).json(isSuccess);
+    if (isSuccess == 403)
+    {
+      res.status(403).json({message: "Dont have permission"});
+    }else{
+      res.status(200).json(isSuccess);
+    }
   } else {
     res.status(404).json({ message: "Error!" });
   }

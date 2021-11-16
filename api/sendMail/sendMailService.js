@@ -5,8 +5,13 @@ exports.joinClass = async (email, invite_code) => {
     const dataStudent = await classModel.getUserDataByEmail(email);
     const dataClass = await classModel.getClassDataByInviteCode(invite_code);
     let data = null;
-    if (!dataClass || !dataStudent) {
+    if (!dataClass) {
         return null;
+    }
+    if (!dataStudent){
+        return {
+            id_class: dataClass.id
+        };
     }
     const isExist = await classModel.checkExistTeacherInClass(dataClass.id, dataStudent.id);
     if (isExist) {
@@ -35,8 +40,13 @@ exports.joinClassByStudentRole = async (email, invite_code) => {
     const dataStudent = await classModel.getUserDataByEmail(email);
     const dataClass = await classModel.getClassDataByInviteCode(invite_code);
     let data = null;
-    if (!dataClass || !dataStudent) {
+    if (!dataClass) {
         return null;
+    }
+    if (!dataStudent){
+        return {
+            id_class: dataClass.id
+        };
     }
     const isExist = await classModel.checkExistStudentInClass(dataClass.id, dataStudent.id);
     if (isExist) {
