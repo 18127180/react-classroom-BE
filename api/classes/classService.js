@@ -28,26 +28,24 @@ const send_single_mail = async (sender_teacher_email, invite_code, call_back_api
   let nameUser = "";
   if (!senderDataUser) {
 
-  }else{
+  } else {
     nameUser = senderDataUser.first_name + " " + senderDataUser.last_name
   }
   const classData = await classModel.getClassDataByInviteCode(invite_code);
   if (!classData) {
     return null;
   }
-  if (role == "TEACHER" && senderDataUser)
-  {
-    const checkExistTeacher = await classModel.checkExistTeacherInClass(classData.id,senderDataUser);
+  if (role == "TEACHER" && senderDataUser) {
+    const checkExistTeacher = await classModel.checkExistTeacherInClass(classData.id, senderDataUser);
     if (checkExistTeacher) return null;
   }
-  if (role == "STUDENT" && senderDataUser){
-    const checkExistStudent = await classModel.checkExistStudentInClass(classData.id,senderDataUser);
+  if (role == "STUDENT" && senderDataUser) {
+    const checkExistStudent = await classModel.checkExistStudentInClass(classData.id, senderDataUser);
     if (checkExistStudent) return null;
   }
-  const isExist = await classModel.checkQueueUser(email,class_id,role);
-  if (!isExist)
-  {
-    const result = await classModel.addQueueUser(sender_teacher_email,role,classData.id);
+  const isExist = await classModel.checkQueueUser(sender_teacher_email, classData.id, role);
+  if (!isExist) {
+    const result = await classModel.addQueueUser(sender_teacher_email, role, classData.id);
   }
   sendMail.setApiKey(process.env.KEY_API_EMAIL);
   const msg = {
@@ -97,6 +95,7 @@ exports.inviteByMail = async (list_email, invite_code) => {
 exports.inviteByMailToStudent = async (list_email, invite_code) => {
   const error_list = [];
   for (const item of list_email) {
+    console.log(item.email);
     const isSucess = await send_single_mail(
       item.email,
       invite_code,
@@ -164,27 +163,53 @@ exports.joinClass = async (email, invite_code) => {
   return data;
 };
 
-exports.checkQueueUser = async (email, class_id, role) =>{
-  const result = await classModel.checkQueueUser(email,class_id,role);
+exports.checkQueueUser = async (email, class_id, role) => {
+  const result = await classModel.checkQueueUser(email, class_id, role);
+  if (result) {
+    const studentList = await classModel.getDataStudentsByClassId(class_id);
+    const teacherList = await classModel.getDataTeachersByClassId(class_id);
+    const dataClass = await classModel.getClassDataById(class_id);
+    if (!dataClass){
+      return null;
+    }
+    return {
+      studentNum: studentList?.length,
+      teacherNum: teacherList?.length,
+      name: dataClass?.name
+    }
+  }
   return result;
 }
 
-exports.addQueueUser = async (email, class_id, role) =>{
+exports.addQueueUser = async (email, class_id, role) => {
   const dataUser = await classModel.getUserDataByEmail(email);
-  if (!dataUser)
-  {
+  if (!dataUser) {
     return null;
   }
-  const isExistStudent = await classModel.checkExistStudentInClass(class_id,dataUser.id);
-  const isExistTeacher = await classModel.checkExistTeacherInClass(class_id,dataUser.id);
-  if (isExistStudent || isExistTeacher){
+  const isExistStudent = await classModel.checkExistStudentInClass(class_id, dataUser.id);
+  const isExistTeacher = await classModel.checkExistTeacherInClass(class_id, dataUser.id);
+  if (isExistStudent || isExistTeacher) {
     return null;
   }
-  const isExist = await classModel.checkQueueUser(email,class_id,role);
+  const isExist = await classModel.checkQueueUser(email, class_id, role);
   let result = true;
-  if (!isExist)
-  {
-    result = await classModel.addQueueUser(email,role,class_id);
+  const studentList = await classModel.getDataStudentsByClassId(class_id);
+  const teacherList = await classModel.getDataTeachersByClassId(class_id);
+  const dataClass = await classModel.getClassDataById(class_id);
+  if (!dataClass){
+    return null;
   }
-  return result;
+  if (!isExist) {
+    result = await classModel.addQueueUser(email, role, class_id);
+    return {
+      studentNum: studentList?.length,
+      teacherNum: teacherList?.length,
+      name: dataClass?.name
+    }
+  }
+  return {
+      studentNum: studentList?.length,
+      teacherNum: teacherList?.length,
+      name: dataClass?.name
+    };
 }

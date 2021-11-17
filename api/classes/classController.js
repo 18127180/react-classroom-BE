@@ -79,7 +79,8 @@ exports.joinClass = async (req, res) => {
 exports.checkQueueUser = async (req, res) => {
   const isSuccess = await classService.checkQueueUser(req.body.email, req.body.class_id, req.body.role);
   if (isSuccess) {
-    res.status(200).json({ message: "Permission!" });
+    console.log(isSuccess);
+    res.status(200).json(isSuccess);
   } else {
     res.status(404).json({ message: "Error!" });
   }
@@ -88,7 +89,8 @@ exports.checkQueueUser = async (req, res) => {
 exports.addQueueUser = async (req, res) => {
   const isSuccess = await classService.addQueueUser(req.body.email, req.body.class_id, req.body.role);
   if (isSuccess) {
-    res.status(200).json({ message: "Add queue success!" });
+    console.log(isSuccess);
+    res.status(200).json(isSuccess);
   } else {
     res.status(404).json({ message: "Error!" });
   }
