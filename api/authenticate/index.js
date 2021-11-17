@@ -79,19 +79,19 @@ router.post("/facebook", async function (req, res, next) {
       //   const isSucess = await authModel.createThirdPartyUser(currentUser);
       // }
       const isExist = await authModel.checkExistUserFacebook(currentUser.email);
-      const isSuccess = {};
-      if (isExist && isExist.provider_id_gg === null) {
+      let isSuccess = {};
+      if (isExist && isExist.provider_id_fb === null) {
         //exist with other authentication
-        isSuccess = await authModel.updateUserFacebook(user, isExist);
+        isSuccess = await authModel.updateUserFacebook(currentUser, isExist);
       } else if (!isExist) {
         //not exist
-        isSuccess = await authModel.createUserFacebook(user);
+        isSuccess = await authModel.createUserFacebook(currentUser);
       }
-      currentUser["id"] = isExist.id || isSuccess.id;
-      currentUser["first_name"] = isExist.first_name || isSuccess.first_name;
-      currentUser["last_name"] = isExist.last_name || isSuccess.last_name;
-      currentUser["avatar"] = isExist.avatar || isSuccess.avatar;
-      currentUser["student_id"] = isExist.student_id || isSuccess.student_id;
+      currentUser["id"] = isExist?.id || isSuccess?.id;
+      currentUser["first_name"] = isExist?.first_name || isSuccess?.first_name;
+      currentUser["last_name"] = isExist?.last_name || isSuccess?.last_name;
+      currentUser["avatar"] = isExist?.avatar || isSuccess?.avatar;
+      currentUser["student_id"] = isExist?.student_id || isSuccess?.student_id;
       res.status(200).json({
         user: currentUser,
         access_token: jwt.sign(currentUser, process.env.ACCESS_TOKEN_SECRET_KEY, {
