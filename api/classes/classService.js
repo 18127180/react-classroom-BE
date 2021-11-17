@@ -91,7 +91,7 @@ exports.inviteByMail = async (list_email, invite_code) => {
     const isSucess = await send_single_mail(
       item.email,
       invite_code,
-      process.env.NODE_ENV
+      process.env.NODE_ENV === "production"
         ? process.env.CALL_BACK_SEND_MAIL_API_PROD
         : process.env.CALL_BACK_SEND_MAIL_API,
       process.env.TEMPLATE_ID,
@@ -111,7 +111,7 @@ exports.inviteByMailToStudent = async (list_email, invite_code) => {
     const isSucess = await send_single_mail(
       item.email,
       invite_code,
-      process.env.NODE_ENV
+      process.env.NODE_ENV === "production"
         ? process.env.CALL_BACK_API_STUDENT_PROD
         : process.env.CALL_BACK_API_STUDENT,
       process.env.TEMPLATE_ID_STUDENT,

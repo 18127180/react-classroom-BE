@@ -4,7 +4,7 @@ const sendMailService = require("./sendMailService");
 exports.joinClassByEmail = async (req, res) => {
   const link =
     (process.env.NODE_ENV === "production"
-      ? process.env.FRONTEND_HSOT_PROD
+      ? process.env.FRONTEND_HOST_PROD
       : process.env.FRONTEND_HOST) +
     "/invite/" +
     req.query.class_id +
@@ -15,7 +15,7 @@ exports.joinClassByEmail = async (req, res) => {
 exports.joinClassByEmailStudent = async (req, res) => {
   const link =
     (process.env.NODE_ENV === "production"
-      ? process.env.FRONTEND_HSOT_PROD
+      ? process.env.FRONTEND_HOST_PROD
       : process.env.FRONTEND_HOST) +
     "/invite/" +
     req.query.class_id +
