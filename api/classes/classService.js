@@ -236,6 +236,14 @@ exports.listAssignment = async (user, classId) => {
   return null;
 };
 
+exports.deleteAssignment = async (user, body) => {
+  const records = await classModel.deleteAssignment(user, body);
+  if (records) {
+    return records;
+  }
+  return null;
+};
+
 exports.addAssignment = async (user, body) => {
   const records = await classModel.addAssignment(user, body);
   if (records) {

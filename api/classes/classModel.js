@@ -236,6 +236,19 @@ exports.listAssignment = async (user, classId) => {
   return null;
 };
 
+exports.deleteAssignment = async (user, body) => {
+  try {
+    const record = await pool.query(
+      "DELETE FROM assignment WHERE id=$1 AND class_id=$2 AND teacher_id=$3 RETURNING *",
+      [body.assignmentId, body.classId, user.id]
+    );
+    return [record.rowCount, record.rows];
+  } catch (err) {
+    console.log(err);
+  }
+  return null;
+};
+
 exports.addAssignment = async (user, body) => {
   try {
     const record = await pool.query(

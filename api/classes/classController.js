@@ -113,6 +113,15 @@ exports.listAssignment = async (req, res) => {
   }
 };
 
+exports.deleteAssignment = async (req, res) => {
+  const record = await classService.deleteAssignment(req.user, req.params);
+  if (record) {
+    res.status(200).json({ message: "ok" });
+  } else {
+    res.status(500).json({ message: "not ok" });
+  }
+};
+
 exports.addAssignment = async (req, res) => {
   const isSuccess = await classService.addAssignment(req.user, req.body);
   if (isSuccess) {

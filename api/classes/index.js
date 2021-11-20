@@ -20,6 +20,8 @@ router.post("/add-queue", classController.addQueueUser);
 
 router.get("/assignment/:id", classController.listAssignment);
 
+router.delete("/class/:classId/assignment/:assignmentId", classController.deleteAssignment);
+
 router.post("/assignment", classController.addAssignment);
 
 module.exports = router;
