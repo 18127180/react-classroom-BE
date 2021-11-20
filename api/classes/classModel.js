@@ -24,8 +24,10 @@ exports.listClassByUserId = async (userId) => {
 
 exports.getListStudentByClassId = async (class_id) => {
   try {
-    const records = await pool.query(`select u.id,u.first_name ,u.last_name from class_student cs join "user" u on cs.student_id = u.id where cs.class_id = $1`
-      , [class_id]);
+    const records = await pool.query(
+      `select u.id,u.first_name ,u.last_name from class_student cs join "user" u on cs.student_id = u.id where cs.class_id = $1`,
+      [class_id]
+    );
     return records.rows;
   } catch (err) {
     return err;
@@ -36,13 +38,7 @@ exports.createClass = async (classObj) => {
   try {
     const records = await pool.query(
       "insert into classroom(name,section,topic,description,invitecode) values($1,$2,$3,$4,$5) returning *",
-      [
-        classObj.name,
-        classObj.section,
-        classObj.topic,
-        classObj.description,
-        classObj.invitecode,
-      ]
+      [classObj.name, classObj.section, classObj.topic, classObj.description, classObj.invitecode]
     );
     if (records.rowCount !== 0) return records.rows[0];
     return null;
@@ -68,10 +64,7 @@ exports.createTeacherForClass = async (teacher_id, class_id) => {
 
 exports.getDetailClass = async (id) => {
   try {
-    const records = await pool.query(
-      "select * from classroom c where c.id=$1",
-      [Number(id)]
-    );
+    const records = await pool.query("select * from classroom c where c.id=$1", [Number(id)]);
     return records.rows[0];
   } catch (err) {
     return err;
@@ -134,10 +127,7 @@ exports.checkExistTeacherInClass = async (class_id, student_id) => {
 
 exports.getUserDataByEmail = async (email) => {
   try {
-    const records = await pool.query(
-      'select * from "user" u where u.email = $1',
-      [email]
-    );
+    const records = await pool.query('select * from "user" u where u.email = $1', [email]);
     return records.rows[0];
   } catch (error) {
     return null;
@@ -146,10 +136,9 @@ exports.getUserDataByEmail = async (email) => {
 
 exports.getClassDataByInviteCode = async (invite_code) => {
   try {
-    const records = await pool.query(
-      "select * from classroom c where c.invitecode = $1",
-      [invite_code]
-    );
+    const records = await pool.query("select * from classroom c where c.invitecode = $1", [
+      invite_code,
+    ]);
     return records.rows[0];
   } catch (error) {
     return null;
@@ -158,10 +147,7 @@ exports.getClassDataByInviteCode = async (invite_code) => {
 
 exports.getClassDataById = async (class_id) => {
   try {
-    const records = await pool.query(
-      "select * from classroom c where c.id = $1",
-      [class_id]
-    );
+    const records = await pool.query("select * from classroom c where c.id = $1", [class_id]);
     return records.rows[0];
   } catch (error) {
     return null;
@@ -202,41 +188,69 @@ exports.removeStudentInClass = async (class_id, student_id) => {
   } catch (error) {
     return error;
   }
-}
+};
 
 exports.addQueueUser = async (email, role, class_id) => {
   try {
     const records = await pool.query(
       `insert into invite_queue(email,role,class_id) values($1,$2,$3)`,
       [email, role, class_id]
-    )
+    );
     return records;
   } catch (error) {
     return error;
   }
-}
+};
 
 exports.removeQueueUser = async (email, role, class_id) => {
   try {
     const records = await pool.query(
       `delete from invite_queue where email = $1 and role = $2 and class_id = $3`,
       [email, role, class_id]
-    )
+    );
     return records;
   } catch (error) {
     return error;
   }
-}
+};
 
 exports.checkQueueUser = async (email, class_id, role) => {
   try {
     const records = await pool.query(
       `select * from invite_queue where email = $1 and class_id = $2 and role = $3`,
       [email, class_id, role]
-    )
+    );
     return records.rowCount;
   } catch (error) {
     return null;
   }
-}
+};
 
+exports.listAssignment = async (user, classId) => {
+  try {
+    const record = await pool.query("SELECT * FROM assignment WHERE class_id=$1", [classId]);
+    return [record.rowCount, record.rows];
+  } catch (err) {
+    console.log(err);
+  }
+  return null;
+};
+
+exports.addAssignment = async (user, body) => {
+  try {
+    const record = await pool.query(
+      "SELECT 1 FROM class_teacher WHERE class_id=$1 AND teacher_id=$2",
+      [body.classId, user.id]
+    );
+    if (record.rowCount !== 0) {
+      const record2 = await pool.query(
+        "INSERT INTO assignment(class_id,teacher_id,title,description,point) VALUES($1,$2,$3,$4,$5) RETURNING *",
+        [body.classId, user.id, body.title, body.description, body.point]
+      );
+      if (record2.rowCount !== 0) return record2.rows[0];
+    }
+  } catch (err) {
+    console.log(err);
+  }
+  return null;
+};

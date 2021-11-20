@@ -77,21 +77,47 @@ exports.joinClass = async (req, res) => {
 };
 
 exports.checkQueueUser = async (req, res) => {
-  const isSuccess = await classService.checkQueueUser(req.body.email, req.body.class_id, req.body.role);
+  const isSuccess = await classService.checkQueueUser(
+    req.body.email,
+    req.body.class_id,
+    req.body.role
+  );
   if (isSuccess) {
     console.log(isSuccess);
     res.status(200).json(isSuccess);
   } else {
     res.status(404).json({ message: "Error!" });
   }
-}
+};
 
 exports.addQueueUser = async (req, res) => {
-  const isSuccess = await classService.addQueueUser(req.body.email, req.body.class_id, req.body.role);
+  const isSuccess = await classService.addQueueUser(
+    req.body.email,
+    req.body.class_id,
+    req.body.role
+  );
   if (isSuccess) {
     console.log(isSuccess);
     res.status(200).json(isSuccess);
   } else {
     res.status(404).json({ message: "Error!" });
   }
-}
+};
+
+exports.listAssignment = async (req, res) => {
+  const record = await classService.listAssignment(req.user, req.params.id);
+  if (record) {
+    res.status(200).json(record[1]);
+  } else {
+    res.status(500).json({ message: "not ok" });
+  }
+};
+
+exports.addAssignment = async (req, res) => {
+  const isSuccess = await classService.addAssignment(req.user, req.body);
+  if (isSuccess) {
+    res.status(201).json(isSuccess);
+  } else {
+    res.status(500).json({ message: "not ok" });
+  }
+};

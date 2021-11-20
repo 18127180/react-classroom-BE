@@ -227,3 +227,19 @@ exports.addQueueUser = async (email, class_id, role) => {
     name: dataClass?.name,
   };
 };
+
+exports.listAssignment = async (user, classId) => {
+  const records = await classModel.listAssignment(user, classId);
+  if (records) {
+    return records;
+  }
+  return null;
+};
+
+exports.addAssignment = async (user, body) => {
+  const records = await classModel.addAssignment(user, body);
+  if (records) {
+    return records;
+  }
+  return null;
+};
