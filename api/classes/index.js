@@ -24,4 +24,6 @@ router.delete("/class/:classId/assignment/:assignmentId", classController.delete
 
 router.post("/assignment", classController.addAssignment);
 
+router.put("/assignment", classController.updateAssignment);
+
 module.exports = router;

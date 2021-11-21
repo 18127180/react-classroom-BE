@@ -130,3 +130,12 @@ exports.addAssignment = async (req, res) => {
     res.status(500).json({ message: "not ok" });
   }
 };
+
+exports.updateAssignment = async (req, res) => {
+  const isSuccess = await classService.addAssignment(req.user, req.body);
+  if (isSuccess) {
+    res.status(200).json(isSuccess);
+  } else {
+    res.status(500).json({ message: "not ok" });
+  }
+};

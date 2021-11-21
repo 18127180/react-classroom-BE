@@ -267,3 +267,22 @@ exports.addAssignment = async (user, body) => {
   }
   return null;
 };
+
+exports.addAssignment = async (user, body) => {
+  try {
+    const record = await pool.query(
+      "SELECT 1 FROM class_teacher WHERE class_id=$1 AND teacher_id=$2",
+      [body.classId, user.id]
+    );
+    if (record.rowCount !== 0) {
+      const record2 = await pool.query(
+        "UPDATE assignment SET title=$1,description=$2,point=$3 WHERE id=$4 RETURNING *",
+        [body.title, body.description, body.point, body.assignmentId]
+      );
+      if (record2.rowCount !== 0) return record2.rows[0];
+    }
+  } catch (err) {
+    console.log(err);
+  }
+  return null;
+};
