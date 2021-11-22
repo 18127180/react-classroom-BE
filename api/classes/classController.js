@@ -132,7 +132,16 @@ exports.addAssignment = async (req, res) => {
 };
 
 exports.updateAssignment = async (req, res) => {
-  const isSuccess = await classService.addAssignment(req.user, req.body);
+  const isSuccess = await classService.updateAssignment(req.user, req.body);
+  if (isSuccess) {
+    res.status(200).json(isSuccess);
+  } else {
+    res.status(500).json({ message: "not ok" });
+  }
+};
+
+exports.updateAssignmentOrder = async (req, res) => {
+  const isSuccess = await classService.updateAssignmentOrder(req.user, req.body);
   if (isSuccess) {
     res.status(200).json(isSuccess);
   } else {

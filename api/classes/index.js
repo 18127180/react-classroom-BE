@@ -26,4 +26,6 @@ router.post("/assignment", classController.addAssignment);
 
 router.put("/assignment", classController.updateAssignment);
 
+router.put("/assignment/order", classController.updateAssignmentOrder);
+
 module.exports = router;

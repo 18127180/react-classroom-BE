@@ -253,7 +253,15 @@ exports.addAssignment = async (user, body) => {
 };
 
 exports.updateAssignment = async (user, body) => {
-  const records = await classModel.udpateAssignment(user, body);
+  const records = await classModel.updateAssignment(user, body);
+  if (records) {
+    return records;
+  }
+  return null;
+};
+
+exports.updateAssignmentOrder = async (user, body) => {
+  const records = await classModel.updateAssignmentOrder(user, body);
   if (records) {
     return records;
   }
