@@ -311,3 +311,27 @@ exports.updateAssignmentOrder = async (user, body) => {
   }
   return null;
 };
+
+exports.getGradeStructure = async (class_id) => {
+  try {
+    const records = await pool.query(
+      "select * from grade_structure where class_id = $1",
+      [class_id]
+    );
+    return records.rows;
+  } catch (error) {
+    return null;
+  }
+}
+
+exports.getSyllabus = async (grade_structure_id) => {
+  try {
+    const records = await pool.query(
+      "select * from syllabus where grade_structure_id = $1",
+      [grade_structure_id]
+    );
+    return records.rows;
+  } catch (error) {
+    return null;
+  }
+}

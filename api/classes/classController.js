@@ -148,3 +148,11 @@ exports.updateAssignmentOrder = async (req, res) => {
     res.status(500).json({ message: "not ok" });
   }
 };
+
+exports.getGradeStructure = async (req,res) =>{
+  const isSuccess = await classService.getGradeStructure(req.query.class_id);
+  if (isSuccess) {
+    res.status(200).json(isSuccess);
+  } else {
+    res.status(400).json({ message: "Bad request" });
+  }}

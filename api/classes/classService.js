@@ -267,3 +267,15 @@ exports.updateAssignmentOrder = async (user, body) => {
   }
   return null;
 };
+
+exports.getGradeStructure = async (class_id) => {
+  const result = await classModel.getGradeStructure(class_id);
+  if (!result) return null;
+  const list_syll = await classModel.getSyllabus(result[0].id);
+  return {
+    id: result[0]?.id,
+    topic: result[0]?.topic,
+    description: result[0]?.description,
+    list_syllabus: list_syll
+  }
+}
