@@ -260,7 +260,7 @@ exports.addAssignment = async (user, body) => {
     );
     if (record.rowCount !== 0) {
       const record2 = await pool.query(
-        "INSERT INTO assignment(class_id,teacher_id,title,description,point,order) VALUES($1,$2,$3,$4,$5) RETURNING *",
+        `INSERT INTO assignment(class_id,teacher_id,title,description,point,"order") VALUES($1,$2,$3,$4,$5,$6) RETURNING *`,
         [body.classId, user.id, body.title, body.description, body.point, body.count + 1]
       );
       if (record2.rowCount !== 0) return record2.rows[0];
