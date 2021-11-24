@@ -271,7 +271,15 @@ exports.updateAssignmentOrder = async (user, body) => {
 exports.getGradeStructure = async (class_id) => {
   const result = await classModel.getGradeStructure(class_id);
   if (!result) return null;
-  const list_syll = await classModel.getSyllabus(result[0].id);
+  const list_syll = await classModel.getSyllabus(result[0]?.id);
+  if (!list_syll){
+    return {
+      id: "",
+      topic: "",
+      description: "",
+      list_syllabus: []
+    }
+  }
   return {
     id: result[0]?.id,
     topic: result[0]?.topic,
