@@ -327,11 +327,63 @@ exports.getGradeStructure = async (class_id) => {
 exports.getSyllabus = async (grade_structure_id) => {
   try {
     const records = await pool.query(
-      "select * from syllabus where grade_structure_id = $1",
+      `select * from syllabus s where grade_structure_id = $1 order by s."order" ASC`,
       [grade_structure_id]
     );
     return records.rows;
   } catch (error) {
+    return null;
+  }
+}
+
+exports.removeGradeStructure = async (class_id) => {
+  try {
+    const records = await pool.query(
+      `delete from grade_structure gs where gs.class_id = $1`,
+      [class_id]
+    );
+    return records;
+  } catch (error) {
+    return error;
+  }
+};
+
+exports.removeSyllabus = async (grade_structure_id) => {
+  try {
+    const records = await pool.query(
+      `delete from syllabus s where s.grade_structure_id = $1`,
+      [grade_structure_id]
+    );
+    return records;
+  } catch (error) {
+    return error;
+  }
+};
+
+exports.addGradeStructure = async (object) =>{
+  try {
+    const records = await pool.query(
+      "insert into grade_structure(class_id,topic,description) values($1,$2,$3) returning *",
+      [object.class_id,object.topic,object.description]
+    );
+    if (records.rowCount !== 0) return records.rows[0];
+    return null;
+  } catch (err) {
+    console.log(err);
+    return null;
+  }
+}
+
+exports.addSyllabus = async (object) =>{
+  try {
+    const records = await pool.query(
+      `insert into syllabus(grade_structure_id,subject_name,grade,"order") values($1,$2,$3,$4) returning *`,
+      [object.grade_structure_id,object.subject_name,object.grade,object.order]
+    );
+    if (records.rowCount !== 0) return records.rows[0];
+    return null;
+  } catch (err) {
+    console.log(err);
     return null;
   }
 }

@@ -30,4 +30,6 @@ router.put("/assignment/order", classController.updateAssignmentOrder);
 
 router.get("/grade-structure", classController.getGradeStructure);
 
+router.put("/grade-structure", classController.updateGradeStructure);
+
 module.exports = router;

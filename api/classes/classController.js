@@ -149,10 +149,22 @@ exports.updateAssignmentOrder = async (req, res) => {
   }
 };
 
-exports.getGradeStructure = async (req,res) =>{
+exports.getGradeStructure = async (req, res) => {
   const isSuccess = await classService.getGradeStructure(req.query.class_id);
   if (isSuccess) {
     res.status(200).json(isSuccess);
   } else {
     res.status(400).json({ message: "Bad request" });
-  }}
+  }
+}
+
+exports.updateGradeStructure = async (req, res) => {
+  // console.log(req.body);
+  const isSuccess = await classService.updateGradeStructure(req.body);
+  // const isSuccess = await classService.updateAssignmentOrder(req.user, req.body);
+  if (isSuccess) {
+    res.status(200).json(isSuccess);
+  } else {
+    res.status(500).json({ message: "not ok" });
+  }
+};
