@@ -49,7 +49,6 @@ router.post("/google", async function (req, res) {
     user["last_name"] = isExist?.last_name || isSuccess?.last_name;
     user["avatar"] = isExist?.avatar || isSuccess?.avatar;
     user["student_id"] = isExist?.student_id || isSuccess?.student_id;
-    console.log(user);
     res.json({
       user: user,
       access_token: jwt.sign(user, process.env.ACCESS_TOKEN_SECRET_KEY, {
