@@ -1,6 +1,7 @@
 const fs = require("fs");
 const multer = require("multer");
 const xlsx = require("xlsx");
+const uploadService = require("./uploadService");
 
 //multer store files
 const storage = multer.diskStorage({
@@ -13,22 +14,8 @@ const storage = multer.diskStorage({
 });
 var upload = multer({ storage: storage }).single("file");
 
-const schema = {
-  STUDENT_ID: {
-    // JSON object property name.
-    prop: "StudentId",
-    type: String,
-    requried: true,
-  },
-  STUDENT_NAME: {
-    prop: "FullName",
-    type: String,
-    required: true,
-  },
-};
-
 module.exports = {
-  demo(req, res, next) {
+  uploadClassList(req, res, next) {
     upload(req, res, function (err) {
       if (err instanceof multer.MulterError) {
         return res.status(500).json(err);
@@ -44,7 +31,7 @@ module.exports = {
         worksheets[sheetName] = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
       }
 
-      console.log(worksheets.Sheet1);
+      uploadService.uploadClassList(req.body.id, worksheets.Sheet1);
       fs.unlink(path, (err) => {
         if (err) {
           console.error(err);
