@@ -41,4 +41,9 @@ module.exports = {
       return res.status(200).send(req.file);
     });
   },
+
+  downloadStudentList: (req, res, next) => {
+    const file = `public/template xlsx/demo ds lớp.xlsx`;
+    res.download(file); // Set disposition and send it.
+  },
 };
