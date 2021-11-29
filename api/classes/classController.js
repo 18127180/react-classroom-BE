@@ -168,3 +168,14 @@ exports.updateGradeStructure = async (req, res) => {
     res.status(500).json({ message: "not ok" });
   }
 };
+
+exports.getGradeTable = async (req, res) => {
+  // console.log(req.body);
+  const isSuccess = await classService.getGradeTable(req.query.class_id);
+  // const isSuccess = await classService.updateAssignmentOrder(req.user, req.body);
+  if (isSuccess) {
+    res.status(200).json(isSuccess);
+  } else {
+    res.status(500).json({ message: "not ok" });
+  }
+};

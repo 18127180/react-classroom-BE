@@ -295,7 +295,6 @@ exports.updateGradeStructure = async (object) => {
     let list = object?.list_syllabus;
     let index = 0;
     const data = await classModel.addGradeStructure({ class_id: object?.class_id, topic: object?.topic, description: object.description });
-    console.log(data);
     for (let item of list) {
       item.order = index;
       let addItem = { 
@@ -304,7 +303,6 @@ exports.updateGradeStructure = async (object) => {
         grade: item.grade, 
         order: item.order 
       }
-      console.log(addItem);
       await classModel.addSyllabus(addItem);
       index++;
     }
@@ -312,5 +310,20 @@ exports.updateGradeStructure = async (object) => {
   } catch (err) {
     console.log(err);
     return null;
+  }
+}
+
+exports.getGradeTable =  async (class_id) => {
+  const gradeStructure = await classModel.getGradeStructure(class_id);
+  if (!gradeStructure || gradeStructure.length === 0) return null;
+  const gradeTable = await classModel.getGradeTable(class_id,gradeStructure[0].id);
+  const syllabus_list = await classModel.getSyllabus(gradeStructure[0].id);
+  return {
+    id: gradeStructure[0].id,
+    class_id: gradeStructure[0].class_id,
+    topic: gradeStructure[0].topic,
+    description: gradeStructure[0].description,
+    list_header: syllabus_list,
+    grade_table_list: gradeTable
   }
 }

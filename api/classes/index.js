@@ -32,4 +32,6 @@ router.get("/grade-structure", classController.getGradeStructure);
 
 router.put("/grade-structure", classController.updateGradeStructure);
 
+router.get("/grade-table", classController.getGradeTable);
+
 module.exports = router;

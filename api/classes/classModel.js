@@ -387,3 +387,25 @@ exports.addSyllabus = async (object) =>{
     return null;
   }
 }
+
+exports.getGradeTable = async (class_id,grade_structure_id) => {
+  try {
+    const records = await pool.query(
+      `select s1.*, s.grade as max_score, s."order" from 
+      syllabus s
+      join (select ss.*,s2.student_id as exist_code 
+      from student_syllabus ss left join 
+      (select u.student_id 
+      from "user" u 
+      join class_student cs on u.id = cs.student_id 
+      where cs.class_id = $1) as s2 on s2.student_id = ss.student_code) as s1
+      on s.id = s1.syllabus_id
+      where s.grade_structure_id = $2
+      order by s."order" ASC`,
+      [class_id,grade_structure_id]
+    );
+    return records.rows;
+  } catch (error) {
+    return null;
+  }
+}
