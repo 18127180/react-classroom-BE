@@ -16,4 +16,27 @@ module.exports = {
       })
       .catch((err) => console.log(err));
   },
+  async getStudentGradeList(class_id) {
+    try {
+      const records = await pool.query(
+        `select c.student_code as student_id, (null) as grade from class_student_code c where c.class_id = $1`,
+        [class_id]
+      );
+      return records.rows;
+    } catch (error) {
+      return null;
+    }
+  },
 };
+
+// exports.getStudentGradeList = async (class_id) => {
+//   try {
+//     const records = await pool.query(
+//       `select * from class_student_code c where c.class_id = $1`,
+//       [class_id]
+//     );
+//     return records.rows;
+//   } catch (error) {
+//     return null;
+//   }
+// }

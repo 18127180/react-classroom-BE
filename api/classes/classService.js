@@ -316,14 +316,34 @@ exports.updateGradeStructure = async (object) => {
 exports.getGradeTable =  async (class_id) => {
   const gradeStructure = await classModel.getGradeStructure(class_id);
   if (!gradeStructure || gradeStructure.length === 0) return null;
-  const gradeTable = await classModel.getGradeTable(class_id,gradeStructure[0].id);
   const syllabus_list = await classModel.getSyllabus(gradeStructure[0].id);
+
+  const listStudentCode = await classModel.getAllStudentGradeStructure(gradeStructure[0].id);
+  let grade_table_list =[];
+  let maxScoreList = [];
+  for (item of syllabus_list){
+    maxScoreList.push(item.grade);
+  }
+
+  for (studentCode of listStudentCode){
+    const listScore = await classModel.getListScoreOfStudent(gradeStructure[0].id,studentCode.student_code);
+    const isExist = await classModel.checkExistStudentCode(studentCode.student_code);
+    const studentInfo = await classModel.getInfoStudentGradeStructure(studentCode.student_code);
+    const dataStudent = {
+      student_code: studentCode.student_code,
+      isExist: isExist,
+      list_score: listScore,
+      max_score: maxScoreList,
+      full_name: studentInfo[0].full_name
+    }
+    grade_table_list.push(dataStudent);
+  }
   return {
     id: gradeStructure[0].id,
     class_id: gradeStructure[0].class_id,
     topic: gradeStructure[0].topic,
     description: gradeStructure[0].description,
     list_header: syllabus_list,
-    grade_table_list: gradeTable
+    grade_table_list: grade_table_list
   }
 }

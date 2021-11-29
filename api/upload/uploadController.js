@@ -40,10 +40,19 @@ module.exports = {
       });
       return res.status(200).send(req.file);
     });
+    
   },
-
   downloadStudentList: (req, res, next) => {
     const file = `public/template xlsx/demo ds lớp.xlsx`;
     res.download(file); // Set disposition and send it.
   },
+  downloadGradeList : async (req, res) => {
+    const result = await uploadService.downloadGradeList(req.query.class_id);
+    if (result) {
+      const file = `public/upload/grade_download.xlsx`;
+      res.download(file);
+    } else {
+      res.status(500).json({ message: "not ok" });
+    }
+  }
 };

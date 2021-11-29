@@ -409,3 +409,63 @@ exports.getGradeTable = async (class_id,grade_structure_id) => {
     return null;
   }
 }
+
+exports.getAllStudentGradeStructure = async (grade_structure_id) => {
+  try {
+    const records = await pool.query(
+      `select distinct (ss.student_code)
+      from student_syllabus ss join syllabus s on ss.syllabus_id  = s.id 
+      where s.grade_structure_id = $1`,
+      [grade_structure_id]
+    );
+    return records.rows;
+  } catch (error) {
+    return null;
+  }
+}
+
+exports.getListScoreOfStudent = async (grade_structure_id, student_code) => {
+  try {
+    const records = await pool.query(
+      `select ss.score 
+      from student_syllabus ss join syllabus s on ss.syllabus_id  = s.id
+      where s.grade_structure_id = $1 and ss.student_code = $2
+      order by s."order" asc`,
+      [grade_structure_id,student_code]
+    );
+    return records.rows;
+  } catch (error) {
+    return null;
+  }
+}
+
+exports.checkExistStudentCode = async (student_code) => {
+  try {
+    const records = await pool.query(
+      `select *
+      from "user" u 
+      where u.student_id = $1`,
+      [student_code]
+    );
+    if (records.rows.length){
+      return true;
+    }
+    return false;
+  } catch (error) {
+    return null;
+  }
+}
+
+exports.getInfoStudentGradeStructure = async (student_code) => {
+  try {
+    const records = await pool.query(
+      `select *
+      from class_student_code csc 
+      where csc.student_code = $1`,
+      [student_code]
+    );
+    return records.rows;
+  } catch (error) {
+    return null;
+  }
+}
