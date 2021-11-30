@@ -297,11 +297,12 @@ exports.updateGradeStructure = async (object) => {
     const data = await classModel.addGradeStructure({ class_id: object?.class_id, topic: object?.topic, description: object.description });
     for (let item of list) {
       item.order = index;
-      let addItem = { 
-        grade_structure_id: data.id, 
-        subject_name: item.subject_name, 
-        grade: item.grade, 
-        order: item.order 
+      let addItem = {
+        id: item.id,
+        grade_structure_id: data.id,
+        subject_name: item.subject_name,
+        grade: item.grade,
+        order: item.order
       }
       await classModel.addSyllabus(addItem);
       index++;
@@ -313,28 +314,40 @@ exports.updateGradeStructure = async (object) => {
   }
 }
 
-exports.getGradeTable =  async (class_id) => {
+exports.getGradeTable = async (class_id) => {
   const gradeStructure = await classModel.getGradeStructure(class_id);
   if (!gradeStructure || gradeStructure.length === 0) return null;
   const syllabus_list = await classModel.getSyllabus(gradeStructure[0].id);
 
-  const listStudentCode = await classModel.getAllStudentGradeStructure(gradeStructure[0].id);
-  let grade_table_list =[];
+  const listStudentCode = await classModel.getAllStudentGradeStructure(class_id);
+  let grade_table_list = [];
   let maxScoreList = [];
-  for (item of syllabus_list){
+  for (item of syllabus_list) {
     maxScoreList.push(item.grade);
   }
 
-  for (studentCode of listStudentCode){
-    const listScore = await classModel.getListScoreOfStudent(gradeStructure[0].id,studentCode.student_code);
+  const numberSyllabus = await classModel.countSyllabus(gradeStructure[0].id);
+
+  for (studentCode of listStudentCode) {
+    let listScore = [];
+    for (let i = 0; i < Number(numberSyllabus.sl); i++) {
+      let score = await classModel.getListScoreOfStudent(gradeStructure[0].id, studentCode.student_code, i);
+      const object_score = {
+        score: Number(score?.score),
+        isClickAway: false,
+        isChange: Number(score?.score) ? true:false
+      }
+      listScore.push(object_score);
+    }
     const isExist = await classModel.checkExistStudentCode(studentCode.student_code);
     const studentInfo = await classModel.getInfoStudentGradeStructure(studentCode.student_code);
     const dataStudent = {
       student_code: studentCode.student_code,
-      isExist: isExist,
+      isExist: isExist?true:false,
       list_score: listScore,
       max_score: maxScoreList,
-      full_name: studentInfo[0].full_name
+      full_name: studentInfo[0].full_name,
+      avatar: isExist.avatar
     }
     grade_table_list.push(dataStudent);
   }

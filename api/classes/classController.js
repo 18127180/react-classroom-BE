@@ -179,3 +179,12 @@ exports.getGradeTable = async (req, res) => {
     res.status(500).json({ message: "not ok" });
   }
 };
+
+exports.updateScoreStudent = async (req,res) => {
+  const isSuccess =  true;
+  if (isSuccess) {
+    res.status(200).json(isSuccess);
+  } else {
+    res.status(500).json({ message: "not ok" });
+  }
+}

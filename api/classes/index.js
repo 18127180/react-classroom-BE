@@ -34,4 +34,6 @@ router.put("/grade-structure", classController.updateGradeStructure);
 
 router.get("/grade-table", classController.getGradeTable);
 
+router.put("/grade-table", classController.updateScoreStudent);
+
 module.exports = router;
