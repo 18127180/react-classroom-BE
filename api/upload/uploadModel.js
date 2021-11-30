@@ -19,13 +19,25 @@ module.exports = {
   async getStudentGradeList(class_id) {
     try {
       const records = await pool.query(
-        `select c.student_code as student_id, (null) as grade from class_student_code c where c.class_id = $1`,
+        `select c.student_code as Student_id, (null) as Grade from class_student_code c where c.class_id = $1`,
         [class_id]
       );
       return records.rows;
     } catch (error) {
       return null;
     }
+  },
+
+  uploadGradeList(syllabus_id, grade_list) {
+    let sql = "INSERT INTO student_syllabus (syllabus_id, student_code, score) VALUES";
+    const amount = grade_list.length;
+    grade_list.forEach((student, index) => {
+      sql += ` (${syllabus_id},${student.StudentId},'${student.Grade}')`;
+      if (index !== amount - 1) sql += ",";
+    });
+    sql +=
+      " ON CONFLICT (syllabus_id, student_code) DO UPDATE SET score = EXCLUDED.score RETURNING *";
+    return pool.query(sql);
   },
 };
 
