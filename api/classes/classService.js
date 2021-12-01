@@ -293,7 +293,6 @@ exports.updateGradeStructure = async (object) => {
     const rs1 = await classModel.removeSyllabus(object?.id);
     const rs2 = await classModel.removeGradeStructure(object?.class_id);
     let list = object?.list_syllabus;
-    console.log(list);
     let index = 0;
     const data = await classModel.addGradeStructure({ class_id: object?.class_id, topic: object?.topic, description: object.description });
     for (let item of list) {
@@ -305,15 +304,30 @@ exports.updateGradeStructure = async (object) => {
         grade: item.grade,
         order: item.order
       }
-      const isExistSyll = await classModel.checkExistSyllabus(Number(item.id));
-      if (isExistSyll){
+      if (item?.new){
         await classModel.addSyllabusCheck(addItem);
       }else{
         await classModel.addSyllabus(addItem);
       }
       index++;
     }
-    return true;
+    const result = await classModel.getGradeStructure(object?.class_id);
+    if (!result) return null;
+    const list_syll = await classModel.getSyllabus(result[0]?.id);
+    if (!list_syll) {
+      return {
+        id: "",
+        topic: "",
+        description: "",
+        list_syllabus: []
+      }
+    }
+    return {
+      id: result[0]?.id,
+      topic: result[0]?.topic,
+      description: result[0]?.description,
+      list_syllabus: list_syll
+    }
   } catch (err) {
     console.log(err);
     return null;
