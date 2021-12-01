@@ -293,6 +293,7 @@ exports.updateGradeStructure = async (object) => {
     const rs1 = await classModel.removeSyllabus(object?.id);
     const rs2 = await classModel.removeGradeStructure(object?.class_id);
     let list = object?.list_syllabus;
+    console.log(list);
     let index = 0;
     const data = await classModel.addGradeStructure({ class_id: object?.class_id, topic: object?.topic, description: object.description });
     for (let item of list) {
@@ -304,7 +305,12 @@ exports.updateGradeStructure = async (object) => {
         grade: item.grade,
         order: item.order
       }
-      await classModel.addSyllabus(addItem);
+      const isExistSyll = await classModel.checkExistSyllabus(Number(item.id));
+      if (isExistSyll){
+        await classModel.addSyllabusCheck(addItem);
+      }else{
+        await classModel.addSyllabus(addItem);
+      }
       index++;
     }
     return true;
@@ -322,23 +328,53 @@ exports.getGradeTable = async (class_id) => {
   const listStudentCode = await classModel.getAllStudentGradeStructure(class_id);
   let grade_table_list = [];
   let maxScoreList = [];
+  total_max = 0;
   for (item of syllabus_list) {
     maxScoreList.push(item.grade);
+    total_max = total_max + item.grade;
   }
+  maxScoreList.push(total_max);
+  syllabus_list.push({
+    id: 1000,
+    subject_name: "Total",
+    grade: total_max
+  })
 
   const numberSyllabus = await classModel.countSyllabus(gradeStructure[0].id);
 
   for (studentCode of listStudentCode) {
     let listScore = [];
+    total = 0;
     for (let i = 0; i < Number(numberSyllabus.sl); i++) {
       let score = await classModel.getListScoreOfStudent(gradeStructure[0].id, studentCode.student_code, i);
+      let check = false;
+      console.log(score);
+      if (Number(score?.score))
+      {
+        check= true;
+      }
+      if (!Number(score?.score) && Number(score?.score)===0)
+      {
+        check=true;
+      }
       const object_score = {
         score: Number(score?.score),
         isClickAway: false,
-        isChange: Number(score?.score) ? true:false
+        isChange: check,
+        isTotal: false
+      }
+      if (Number(score?.score)){
+        total = total + Number(score?.score);
       }
       listScore.push(object_score);
     }
+    const object_total = {
+      score: total,
+      isClickAway: false,
+      isChange: true,
+      isTotal: true
+    }
+    listScore.push(object_total);
     const isExist = await classModel.checkExistStudentCode(studentCode.student_code);
     const studentInfo = await classModel.getInfoStudentGradeStructure(studentCode.student_code);
     const dataStudent = {
@@ -363,7 +399,7 @@ exports.getGradeTable = async (class_id) => {
 
 exports.updateScoreStudentSyllabus = async (object) => {
   for (let i=0;i<object.list_header.length;i++){
-    const isUpdate = await classModel.updateScoreStudentSyllabus(object.student_data.list_score[i].score,object.student_data.student_code,object.list_header[i].id);
+    const isUpdate = await classModel.updateScoreStudentSyllabus(object.student_data.list_score[i]?.score,object.student_data.student_code,object.list_header[i].id);
   }
   return true;
 }

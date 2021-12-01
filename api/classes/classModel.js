@@ -388,6 +388,20 @@ exports.addSyllabus = async (object) =>{
   }
 }
 
+exports.addSyllabusCheck = async (object) =>{
+  try {
+    const records = await pool.query(
+      `insert into syllabus(grade_structure_id,subject_name,grade,"order") values($1,$2,$3,$4) returning *`,
+      [object.grade_structure_id,object.subject_name,object.grade,object.order]
+    );
+    if (records.rowCount !== 0) return records.rows[0];
+    return null;
+  } catch (err) {
+    console.log(err);
+    return null;
+  }
+}
+
 exports.getGradeTable = async (class_id,grade_structure_id) => {
   try {
     const records = await pool.query(
@@ -491,6 +505,20 @@ exports.updateScoreStudentSyllabus = async (score,student_code,syllabus_id) => {
       [score,student_code,syllabus_id]
     );
     return true;
+  } catch (error) {
+    return null;
+  }
+}
+
+exports.checkExistSyllabus = async (id) => {
+  try {
+    const records = await pool.query(
+      `select count(*) as sl
+      from syllabus s 
+      where s.id = $1`,
+      [id]
+    );
+    return records.rows;
   } catch (error) {
     return null;
   }
