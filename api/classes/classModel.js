@@ -484,11 +484,11 @@ exports.countSyllabus = async (grade_structure_id) =>{
   }
 }
 
-exports.updateScoreStudentSyllabus = async () => {
+exports.updateScoreStudentSyllabus = async (score,student_code,syllabus_id) => {
   try {
     const records = await pool.query(
-      ``,
-      [grade_structure_id]
+      `UPDATE student_syllabus set score=$1 where student_code=$2 and syllabus_id=$3`,
+      [score,student_code,syllabus_id]
     );
     return true;
   } catch (error) {

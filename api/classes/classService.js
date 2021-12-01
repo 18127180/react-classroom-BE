@@ -360,3 +360,10 @@ exports.getGradeTable = async (class_id) => {
     grade_table_list: grade_table_list
   }
 }
+
+exports.updateScoreStudentSyllabus = async (object) => {
+  for (let i=0;i<object.list_header.length;i++){
+    const isUpdate = await classModel.updateScoreStudentSyllabus(object.student_data.list_score[i].score,object.student_data.student_code,object.list_header[i].id);
+  }
+  return true;
+}

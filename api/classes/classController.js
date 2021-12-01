@@ -181,7 +181,7 @@ exports.getGradeTable = async (req, res) => {
 };
 
 exports.updateScoreStudent = async (req,res) => {
-  const isSuccess =  true;
+  const isSuccess =  await classService.updateScoreStudentSyllabus(req.body);
   if (isSuccess) {
     res.status(200).json(isSuccess);
   } else {
