@@ -10,4 +10,6 @@ router.get("/download/grade-list", uploadController.downloadGradeList);
 
 router.post("/grade-list", uploadController.uploadGradeList);
 
+router.get("/download/grade-table", uploadController.downloadGradeTable);
+
 module.exports = router;

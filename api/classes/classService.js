@@ -362,7 +362,7 @@ exports.getGradeTable = async (class_id) => {
     for (let i = 0; i < Number(numberSyllabus.sl); i++) {
       let score = await classModel.getListScoreOfStudent(gradeStructure[0].id, studentCode.student_code, i);
       let check = false;
-      console.log(score);
+      // console.log(score);
       if (Number(score?.score))
       {
         check= true;

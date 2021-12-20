@@ -54,6 +54,14 @@ module.exports = {
       res.status(500).json({ message: "not ok" });
     }
   },
+  downloadGradeTable: async (req, res) => {
+    const result = await uploadService.downloadGradeTable(req.query.class_id);
+    if (result) {
+      res.download(result);
+    } else {
+      res.status(500).json({ message: "not ok" });
+    }
+  },
   uploadGradeList(req, res, next) {
     upload(req, res, function (err) {
       if (err instanceof multer.MulterError) {
