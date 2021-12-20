@@ -8,6 +8,7 @@ const passport = require("./modules/passport");
 
 const indexRouter = require("./routes/index");
 const classroomRouter = require("./api/classes");
+const syllabusRouter = require("./api/syllabus");
 const registerRouter = require("./api/auth");
 const authRouter = require("./api/authenticate");
 const sendMailRouter = require("./api/sendMail");
@@ -35,6 +36,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/", indexRouter);
 app.use("/user", passport.authenticate("jwt", { session: false }), userRouter);
 app.use("/classroom", passport.authenticate("jwt", { session: false }), classroomRouter);
+app.use("/syllabus", passport.authenticate("jwt", { session: false }), syllabusRouter);
 app.use("/sendMail", sendMailRouter);
 app.use("/auth", authRouter);
 app.use("/register", registerRouter);

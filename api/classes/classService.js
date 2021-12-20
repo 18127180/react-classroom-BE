@@ -277,16 +277,16 @@ exports.getGradeStructure = async (class_id) => {
       id: "",
       topic: "",
       description: "",
-      list_syllabus: []
-    }
+      list_syllabus: [],
+    };
   }
   return {
     id: result[0]?.id,
     topic: result[0]?.topic,
     description: result[0]?.description,
-    list_syllabus: list_syll
-  }
-}
+    list_syllabus: list_syll,
+  };
+};
 
 exports.updateGradeStructure = async (object) => {
   try {
@@ -294,7 +294,11 @@ exports.updateGradeStructure = async (object) => {
     const rs2 = await classModel.removeGradeStructure(object?.class_id);
     let list = object?.list_syllabus;
     let index = 0;
-    const data = await classModel.addGradeStructure({ class_id: object?.class_id, topic: object?.topic, description: object.description });
+    const data = await classModel.addGradeStructure({
+      class_id: object?.class_id,
+      topic: object?.topic,
+      description: object.description,
+    });
     for (let item of list) {
       item.order = index;
       let addItem = {
@@ -302,11 +306,11 @@ exports.updateGradeStructure = async (object) => {
         grade_structure_id: data.id,
         subject_name: item.subject_name,
         grade: item.grade,
-        order: item.order
-      }
-      if (item?.new){
+        order: item.order,
+      };
+      if (item?.new) {
         await classModel.addSyllabusCheck(addItem);
-      }else{
+      } else {
         await classModel.addSyllabus(addItem);
       }
       index++;
@@ -319,20 +323,20 @@ exports.updateGradeStructure = async (object) => {
         id: "",
         topic: "",
         description: "",
-        list_syllabus: []
-      }
+        list_syllabus: [],
+      };
     }
     return {
       id: result[0]?.id,
       topic: result[0]?.topic,
       description: result[0]?.description,
-      list_syllabus: list_syll
-    }
+      list_syllabus: list_syll,
+    };
   } catch (err) {
     console.log(err);
     return null;
   }
-}
+};
 
 exports.getGradeTable = async (class_id) => {
   const gradeStructure = await classModel.getGradeStructure(class_id);
@@ -351,8 +355,8 @@ exports.getGradeTable = async (class_id) => {
   syllabus_list.push({
     id: 1000,
     subject_name: "Total",
-    grade: total_max
-  })
+    grade: total_max,
+  });
 
   const numberSyllabus = await classModel.countSyllabus(gradeStructure[0].id);
 
@@ -360,24 +364,26 @@ exports.getGradeTable = async (class_id) => {
     let listScore = [];
     total = 0;
     for (let i = 0; i < Number(numberSyllabus.sl); i++) {
-      let score = await classModel.getListScoreOfStudent(gradeStructure[0].id, studentCode.student_code, i);
+      let score = await classModel.getListScoreOfStudent(
+        gradeStructure[0].id,
+        studentCode.student_code,
+        i
+      );
       let check = false;
       console.log(score);
-      if (Number(score?.score))
-      {
-        check= true;
+      if (Number(score?.score)) {
+        check = true;
       }
-      if (!Number(score?.score) && Number(score?.score)===0)
-      {
-        check=true;
+      if (!Number(score?.score) && Number(score?.score) === 0) {
+        check = true;
       }
       const object_score = {
         score: Number(score?.score),
         isClickAway: false,
         isChange: check,
-        isTotal: false
-      }
-      if (Number(score?.score)){
+        isTotal: false,
+      };
+      if (Number(score?.score)) {
         total = total + Number(score?.score);
       }
       listScore.push(object_score);
@@ -386,19 +392,19 @@ exports.getGradeTable = async (class_id) => {
       score: total,
       isClickAway: false,
       isChange: true,
-      isTotal: true
-    }
+      isTotal: true,
+    };
     listScore.push(object_total);
     const isExist = await classModel.checkExistStudentCode(studentCode.student_code);
     const studentInfo = await classModel.getInfoStudentGradeStructure(studentCode.student_code);
     const dataStudent = {
       student_code: studentCode.student_code,
-      isExist: isExist?true:false,
+      isExist: isExist ? true : false,
       list_score: listScore,
       max_score: maxScoreList,
       full_name: studentInfo[0].full_name,
-      avatar: isExist.avatar
-    }
+      avatar: isExist.avatar,
+    };
     grade_table_list.push(dataStudent);
   }
   return {
@@ -407,13 +413,17 @@ exports.getGradeTable = async (class_id) => {
     topic: gradeStructure[0].topic,
     description: gradeStructure[0].description,
     list_header: syllabus_list,
-    grade_table_list: grade_table_list
-  }
-}
+    grade_table_list: grade_table_list,
+  };
+};
 
 exports.updateScoreStudentSyllabus = async (object) => {
-  for (let i=0;i<object.list_header.length;i++){
-    const isUpdate = await classModel.updateScoreStudentSyllabus(object.student_data.list_score[i]?.score,object.student_data.student_code,object.list_header[i].id);
+  for (let i = 0; i < object.list_header.length; i++) {
+    const isUpdate = await classModel.updateScoreStudentSyllabus(
+      object.student_data.list_score[i]?.score,
+      object.student_data.student_code,
+      object.list_header[i].id
+    );
   }
   return true;
-}
+};

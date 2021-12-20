@@ -156,7 +156,7 @@ exports.getGradeStructure = async (req, res) => {
   } else {
     res.status(400).json({ message: "Bad request" });
   }
-}
+};
 
 exports.updateGradeStructure = async (req, res) => {
   // console.log(req.body);
@@ -180,11 +180,11 @@ exports.getGradeTable = async (req, res) => {
   }
 };
 
-exports.updateScoreStudent = async (req,res) => {
-  const isSuccess =  await classService.updateScoreStudentSyllabus(req.body);
+exports.updateScoreStudent = async (req, res) => {
+  const isSuccess = await classService.updateScoreStudentSyllabus(req.body);
   if (isSuccess) {
     res.status(200).json(isSuccess);
   } else {
     res.status(500).json({ message: "not ok" });
   }
-}
+};
