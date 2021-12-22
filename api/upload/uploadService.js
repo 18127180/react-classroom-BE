@@ -2,10 +2,7 @@ const uploadModel = require("./uploadModel");
 const xlsx = require("xlsx");
 const classService = require("../classes/classService");
 const path = require("path");
-const moment = require("moment");
 const classModel = require("../classes/classModel");
-
-
 
 module.exports = {
   uploadClassList(class_id, student_list) {
@@ -41,7 +38,7 @@ module.exports = {
       total_max = total_max + item.grade;
       let str = item.subject_name + " (" + item.grade + "/" + item.grade + ")";
       headList.push(str);
-      wscols.push({ wch: str.length});
+      wscols.push({ wch: str.length });
     }
     let totalStr = "Total " + " (" + total_max + "/" + total_max + ")";
     headList.push(totalStr);
@@ -52,8 +49,8 @@ module.exports = {
     syllabus_list.push({
       id: 1000,
       subject_name: "Total",
-      grade: total_max
-    })
+      grade: total_max,
+    });
 
     const numberSyllabus = await classModel.countSyllabus(gradeStructure[0].id);
 
@@ -62,9 +59,13 @@ module.exports = {
       const studentInfo = await classModel.getInfoStudentGradeStructure(studentCode.student_code);
       let dataStudent = {
         student_info: studentInfo[0].full_name + " - " + studentCode.student_code,
-      }
+      };
       for (let i = 0; i < Number(numberSyllabus.sl); i++) {
-        let score = await classModel.getListScoreOfStudent(gradeStructure[0].id, studentCode.student_code, i);
+        let score = await classModel.getListScoreOfStudent(
+          gradeStructure[0].id,
+          studentCode.student_code,
+          i
+        );
         // console.log(score);
         if (Number(score?.score)) {
           total = total + Number(score?.score);
@@ -77,18 +78,17 @@ module.exports = {
       arr.push(dataStudent);
     }
 
-
     //Had to create a new workbook and then add the header
     const wb = xlsx.utils.book_new();
     const ws = xlsx.utils.json_to_sheet([]);
     xlsx.utils.sheet_add_aoa(ws, Heading);
 
     //Starting in the second row to avoid overriding and skipping headers
-    xlsx.utils.sheet_add_json(ws, arr, { origin: 'A2', skipHeader: true });
+    xlsx.utils.sheet_add_json(ws, arr, { origin: "A2", skipHeader: true });
 
-    ws['!cols'] = wscols;
-    xlsx.utils.book_append_sheet(wb, ws, 'Sheet1');
-    const fileName =  'public/template xlsx/grade_table_' + class_id + '.xlsx';
+    ws["!cols"] = wscols;
+    xlsx.utils.book_append_sheet(wb, ws, "Sheet1");
+    const fileName = "public/template xlsx/grade_table_" + class_id + ".xlsx";
     xlsx.writeFile(wb, fileName);
     return fileName;
   },
