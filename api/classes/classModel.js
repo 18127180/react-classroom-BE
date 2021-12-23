@@ -523,3 +523,22 @@ exports.checkExistSyllabus = async (id) => {
     return null;
   }
 }
+
+exports.getGradePersonal = async (class_id, user_id) => {
+  try {
+    const records = await pool.query(
+      `select temp2.*
+      from "user" u join (
+      select temp1.*, ss.score as grade, ss.student_code from student_syllabus ss join 
+      (select s.id as syllabus_id , s.subject_name as syllabus_name, s.order, s.grade as maxGrade 
+      from grade_structure gs join syllabus s on gs.id = s.grade_structure_id
+      where class_id = $1 and s.finalize = true 
+      order by s.order asc) as temp1 on ss.syllabus_id = temp1.syllabus_id
+      ) as temp2 on temp2.student_code = u.student_id where u.id = $2`,
+      [class_id, user_id]
+    );
+    return records.rows;
+  } catch (error) {
+    return null;
+  }
+}

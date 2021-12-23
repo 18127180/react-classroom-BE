@@ -188,3 +188,12 @@ exports.updateScoreStudent = async (req, res) => {
     res.status(500).json({ message: "not ok" });
   }
 };
+
+exports.getClassPersonal = async (req, res) => {
+  const isSuccess = await classService.getGradePersonal(req.query.class_id, req.query.user_id);
+  if (isSuccess) {
+    res.status(200).json(isSuccess);
+  } else {
+    res.status(500).json({ message: "not ok" });
+  }
+};

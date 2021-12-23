@@ -427,3 +427,8 @@ exports.updateScoreStudentSyllabus = async (object) => {
   }
   return true;
 };
+
+exports.getGradePersonal = async (class_id, user_id) => {
+  const result = await classModel.getGradePersonal(class_id, user_id);
+  return result;
+};
