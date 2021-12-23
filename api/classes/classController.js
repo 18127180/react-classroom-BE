@@ -197,3 +197,12 @@ exports.getClassPersonal = async (req, res) => {
     res.status(500).json({ message: "not ok" });
   }
 };
+
+exports.addReview = async (req, res) => {
+  const isSuccess = await classService.addReview(req.body);
+  if (isSuccess) {
+    res.status(200).json(isSuccess);
+  } else {
+    res.status(500).json({ message: "not ok" });
+  }
+};

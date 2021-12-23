@@ -38,4 +38,6 @@ router.put("/grade-table", classController.updateScoreStudent);
 
 router.get("/grade-personal", classController.getClassPersonal);
 
+router.post("/add-review", classController.addReview);
+
 module.exports = router;

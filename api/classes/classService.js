@@ -432,3 +432,8 @@ exports.getGradePersonal = async (class_id, user_id) => {
   const result = await classModel.getGradePersonal(class_id, user_id);
   return result;
 };
+
+exports.addReview = async (object) => {
+  const result = await classModel.addReview(object);
+  return result;
+}

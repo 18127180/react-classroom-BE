@@ -542,3 +542,17 @@ exports.getGradePersonal = async (class_id, user_id) => {
     return null;
   }
 }
+
+exports.addReview = async (object) =>{
+  try {
+    const records = await pool.query(
+      `insert into review_student(syllabus_id, student_code, reason, expect_score, final_mark) values ($1,$2,$3,$4,false) returning *`,
+      [object.syllabus_id,object.student_code,object.reason,object.expect_score]
+    );
+    if (records.rowCount !== 0) return records.rows[0];
+    return null;
+  } catch (err) {
+    console.log(err);
+    return null;
+  }
+}
