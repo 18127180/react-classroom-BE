@@ -360,11 +360,11 @@ exports.removeSyllabus = async (grade_structure_id) => {
   }
 };
 
-exports.addGradeStructure = async (object) =>{
+exports.addGradeStructure = async (object) => {
   try {
     const records = await pool.query(
       "insert into grade_structure(class_id,topic,description) values($1,$2,$3) returning *",
-      [object.class_id,object.topic,object.description]
+      [object.class_id, object.topic, object.description]
     );
     if (records.rowCount !== 0) return records.rows[0];
     return null;
@@ -374,11 +374,11 @@ exports.addGradeStructure = async (object) =>{
   }
 }
 
-exports.addSyllabus = async (object) =>{
+exports.addSyllabus = async (object) => {
   try {
     const records = await pool.query(
       `insert into syllabus(id,grade_structure_id,subject_name,grade,"order") values($1,$2,$3,$4,$5) returning *`,
-      [object.id,object.grade_structure_id,object.subject_name,object.grade,object.order]
+      [object.id, object.grade_structure_id, object.subject_name, object.grade, object.order]
     );
     if (records.rowCount !== 0) return records.rows[0];
     return null;
@@ -388,11 +388,11 @@ exports.addSyllabus = async (object) =>{
   }
 }
 
-exports.addSyllabusCheck = async (object) =>{
+exports.addSyllabusCheck = async (object) => {
   try {
     const records = await pool.query(
       `insert into syllabus(grade_structure_id,subject_name,grade,"order") values($1,$2,$3,$4) returning *`,
-      [object.grade_structure_id,object.subject_name,object.grade,object.order]
+      [object.grade_structure_id, object.subject_name, object.grade, object.order]
     );
     if (records.rowCount !== 0) return records.rows[0];
     return null;
@@ -402,7 +402,7 @@ exports.addSyllabusCheck = async (object) =>{
   }
 }
 
-exports.getGradeTable = async (class_id,grade_structure_id) => {
+exports.getGradeTable = async (class_id, grade_structure_id) => {
   try {
     const records = await pool.query(
       `select s1.*, s.grade as max_score, s."order" from 
@@ -416,7 +416,7 @@ exports.getGradeTable = async (class_id,grade_structure_id) => {
       on s.id = s1.syllabus_id
       where s.grade_structure_id = $2
       order by s."order" ASC`,
-      [class_id,grade_structure_id]
+      [class_id, grade_structure_id]
     );
     return records.rows;
   } catch (error) {
@@ -438,14 +438,14 @@ exports.getAllStudentGradeStructure = async (class_id) => {
   }
 }
 
-exports.getListScoreOfStudent = async (grade_structure_id, student_code,order) => {
+exports.getListScoreOfStudent = async (grade_structure_id, student_code, order) => {
   try {
     const records = await pool.query(
       `select ss.score 
       from student_syllabus ss join syllabus s on ss.syllabus_id  = s.id
       where s.grade_structure_id = $1 and ss.student_code = $2 and s."order" = $3
       order by s."order" asc`,
-      [grade_structure_id,student_code,order]
+      [grade_structure_id, student_code, order]
     );
     return records.rows[0];
   } catch (error) {
@@ -461,7 +461,7 @@ exports.checkExistStudentCode = async (student_code) => {
       where u.student_id = $1`,
       [student_code]
     );
-    if (records.rows.length){
+    if (records.rows.length) {
       return records.rows[0];
     }
     return false;
@@ -484,7 +484,7 @@ exports.getInfoStudentGradeStructure = async (student_code) => {
   }
 }
 
-exports.countSyllabus = async (grade_structure_id) =>{
+exports.countSyllabus = async (grade_structure_id) => {
   try {
     const records = await pool.query(
       `select count(*) as sl
@@ -498,11 +498,11 @@ exports.countSyllabus = async (grade_structure_id) =>{
   }
 }
 
-exports.updateScoreStudentSyllabus = async (score,student_code,syllabus_id) => {
+exports.updateScoreStudentSyllabus = async (score, student_code, syllabus_id) => {
   try {
     const records = await pool.query(
       `UPDATE student_syllabus set score=$1 where student_code=$2 and syllabus_id=$3`,
-      [score,student_code,syllabus_id]
+      [score, student_code, syllabus_id]
     );
     return true;
   } catch (error) {
@@ -543,16 +543,25 @@ exports.getGradePersonal = async (class_id, user_id) => {
   }
 }
 
-exports.addReview = async (object) =>{
+exports.addReview = async (object) => {
   try {
     const records = await pool.query(
       `insert into review_student(syllabus_id, student_code, reason, expect_score, final_mark) values ($1,$2,$3,$4,false) returning *`,
-      [object.syllabus_id,object.student_code,object.reason,object.expect_score]
+      [object.syllabus_id, object.student_code, object.reason, object.expect_score]
     );
     if (records.rowCount !== 0) return records.rows[0];
     return null;
   } catch (err) {
     console.log(err);
+    return null;
+  }
+}
+
+exports.querySelect = async (query) => {
+  try {
+    const records = await pool.query(``+query,[]);
+    return records.rows;
+  } catch (error) {
     return null;
   }
 }

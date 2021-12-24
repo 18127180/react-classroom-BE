@@ -342,85 +342,28 @@ exports.getGradeTable = async (class_id) => {
   const gradeStructure = await classModel.getGradeStructure(class_id);
   if (!gradeStructure || gradeStructure.length === 0) return null;
   const syllabus_list = await classModel.getSyllabus(gradeStructure[0].id);
-
-  const listStudentCode = await classModel.getAllStudentGradeStructure(class_id);
-  let grade_table_list = [];
-  let maxScoreList = [];
-  total_max = 0;
-  for (item of syllabus_list) {
-    maxScoreList.push(item.grade);
-    total_max = total_max + item.grade;
+  let sql =`select temp1.*,ARRAY[`
+  let tail = `(select SUM(score) from (select s.* from grade_structure gs join syllabus s on s.grade_structure_id = gs.id where class_id = temp1.class_id) as temp2 join student_syllabus ss on temp2.id = ss.syllabus_id where ss.student_code = temp1.student_code)] as list_score
+  from (select csc.*, u.avatar , (case when student_code = student_id then true else false end) as isExist from class_student_code csc left join "user" u on u.student_id = csc.student_code where class_id = ${class_id}) as temp1`
+  for (item of syllabus_list){
+    sql+=`(select ss.score from syllabus s join student_syllabus ss on s.id = ss.syllabus_id where s.id = ${item.id} and ss.student_code = temp1.student_code),`
   }
-  maxScoreList.push(total_max);
-  syllabus_list.push({
-    id: 1000,
-    subject_name: "Total",
-    grade: total_max,
-  });
-
-  const numberSyllabus = await classModel.countSyllabus(gradeStructure[0].id);
-
-  for (studentCode of listStudentCode) {
-    let listScore = [];
-    total = 0;
-    for (let i = 0; i < Number(numberSyllabus.sl); i++) {
-      let score = await classModel.getListScoreOfStudent(
-        gradeStructure[0].id,
-        studentCode.student_code,
-        i
-      );
-      let check = false;
-      console.log(score);
-      if (Number(score?.score)) {
-        check = true;
-      }
-      if (!Number(score?.score) && Number(score?.score) === 0) {
-        check = true;
-      }
-      const object_score = {
-        score: Number(score?.score),
-        isClickAway: false,
-        isChange: check,
-        isTotal: false,
-      };
-      if (Number(score?.score)) {
-        total = total + Number(score?.score);
-      }
-      listScore.push(object_score);
-    }
-    const object_total = {
-      score: total,
-      isClickAway: false,
-      isChange: true,
-      isTotal: true,
-    };
-    listScore.push(object_total);
-    const isExist = await classModel.checkExistStudentCode(studentCode.student_code);
-    const studentInfo = await classModel.getInfoStudentGradeStructure(studentCode.student_code);
-    const dataStudent = {
-      student_code: studentCode.student_code,
-      isExist: isExist ? true : false,
-      list_score: listScore,
-      max_score: maxScoreList,
-      full_name: studentInfo[0].full_name,
-      avatar: isExist.avatar,
-    };
-    grade_table_list.push(dataStudent);
-  }
+  sql+=tail;
+  const grade_table_list = await classModel.querySelect(sql);
   return {
     id: gradeStructure[0].id,
     class_id: gradeStructure[0].class_id,
     topic: gradeStructure[0].topic,
     description: gradeStructure[0].description,
     list_header: syllabus_list,
-    grade_table_list: grade_table_list,
+    grade_table_list: grade_table_list
   };
 };
 
 exports.updateScoreStudentSyllabus = async (object) => {
   for (let i = 0; i < object.list_header.length; i++) {
     const isUpdate = await classModel.updateScoreStudentSyllabus(
-      object.student_data.list_score[i]?.score,
+      object.student_data.list_score[i],
       object.student_data.student_code,
       object.list_header[i].id
     );
