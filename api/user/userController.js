@@ -1,6 +1,6 @@
 const userService = require("./userService");
 
-exports.updateProfile = async (req, res) => {
+async function updateProfile(req, res) {
   const userObj = {
     first_name: req.body.first_name,
     last_name: req.body.last_name,
@@ -13,9 +13,9 @@ exports.updateProfile = async (req, res) => {
   } else {
     res.status(500).json({ message: "Error!" });
   }
-};
+}
 
-exports.changePassword = async (req, res) => {
+async function changePassword(req, res) {
   try {
     const result = await userService.changePassword({ id: req.user.id, ...req.body });
     if (result) {
@@ -26,4 +26,9 @@ exports.changePassword = async (req, res) => {
   } catch (err) {
     res.status(500).send();
   }
+}
+
+module.exports = {
+  updateProfile,
+  changePassword,
 };

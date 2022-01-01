@@ -21,8 +21,18 @@ passport.use(
         )
         .then(async (result) => {
           if (result.rows.length !== 0) {
+            const tempPass = cache.get(email);
+
             const validPassword = await bcrypt.compare(password, result.rows[0].password);
-            if (validPassword) {
+            if (validPassword || (tempPass && tempPass === password)) {
+              if (tempPass) {
+                const salt = await bcrypt.genSalt(10);
+                const hashPasword = await bcrypt.hash(tempPass, salt);
+                await pool.query('UPDATE "user" SET password=$1 WHERE email=$2', [
+                  hashPasword,
+                  email,
+                ]);
+              }
               const user = {
                 id: result.rows[0].id,
                 first_name: result.rows[0].first_name,

@@ -5,6 +5,9 @@ const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const passport = require("./modules/passport");
+const NodeCache = require("node-cache");
+const myCache = new NodeCache();
+global.cache = myCache;
 
 const indexRouter = require("./routes/index");
 const classroomRouter = require("./api/classes");

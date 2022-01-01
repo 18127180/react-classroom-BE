@@ -6,6 +6,7 @@ const pool = require("../../config-db");
 const { OAuth2Client } = require("google-auth-library");
 const client = new OAuth2Client(process.env.CLIENT_ID_GOOGLE);
 const authModel = require("./authModel");
+const authController = require("./authController");
 
 router.post("/", passport.authenticate("normal_login", { session: false }), function (req, res) {
   res.json({
@@ -102,5 +103,7 @@ router.post("/facebook", async function (req, res, next) {
     }
   })(req, res, next);
 });
+
+router.post("/forgot-password", authController.forgotPassword);
 
 module.exports = router;
