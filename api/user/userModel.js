@@ -26,3 +26,19 @@ exports.checkStudentId = async (student_id) => {
     return err;
   }
 };
+
+exports.getUser = async (id) => {
+  try {
+    const records = await pool.query(`SELECT * FROM "user" WHERE id=$1`, [id]);
+    if (records.rowCount === 0) {
+      return null;
+    }
+    return records.rows[0];
+  } catch (err) {
+    return err;
+  }
+};
+
+exports.changePassword = async (id, hashPasword) => {
+  await pool.query(`UPDATE "user" SET password=$2 WHERE id=$1`, [id, hashPasword]);
+};

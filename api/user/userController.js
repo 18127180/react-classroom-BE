@@ -14,3 +14,16 @@ exports.updateProfile = async (req, res) => {
     res.status(500).json({ message: "Error!" });
   }
 };
+
+exports.changePassword = async (req, res) => {
+  try {
+    const result = await userService.changePassword({ id: req.user.id, ...req.body });
+    if (result) {
+      res.status(200).send();
+    } else {
+      res.status(400).send();
+    }
+  } catch (err) {
+    res.status(500).send();
+  }
+};

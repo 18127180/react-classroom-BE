@@ -21,10 +21,7 @@ passport.use(
         )
         .then(async (result) => {
           if (result.rows.length !== 0) {
-            const validPassword = await bcrypt.compare(
-              password,
-              result.rows[0].password
-            );
+            const validPassword = await bcrypt.compare(password, result.rows[0].password);
             if (validPassword) {
               const user = {
                 id: result.rows[0].id,
@@ -77,10 +74,10 @@ passport.use(
   new JwtStrategy(opts, async function (jwt_payload, done) {
     if (jwt_payload.id_provider) {
       await pool
-        .query(
-          'SELECT id FROM "user" WHERE provider_id_fb=$1 or provider_id_gg=$2',
-          [jwt_payload.id_provider, jwt_payload.id_provider]
-        )
+        .query('SELECT id FROM "user" WHERE provider_id_fb=$1 or provider_id_gg=$2', [
+          jwt_payload.id_provider,
+          jwt_payload.id_provider,
+        ])
         .then((result) => {
           if (result.rows.length !== 0) {
             return done(null, result.rows[0]);
@@ -115,8 +112,7 @@ passport.use(
 passport.use(
   new GoogleStrategy(
     {
-      clientID:
-        "780592097647-hif1svldddrkc4jpojqc44paile3l8da.apps.googleusercontent.com",
+      clientID: "780592097647-hif1svldddrkc4jpojqc44paile3l8da.apps.googleusercontent.com",
       clientSecret: "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",
       callbackURL: "http://localhost:3000",
     },

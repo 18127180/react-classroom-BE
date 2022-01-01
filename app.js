@@ -40,7 +40,7 @@ app.use("/syllabus", passport.authenticate("jwt", { session: false }), syllabusR
 app.use("/sendMail", sendMailRouter);
 app.use("/auth", authRouter);
 app.use("/register", registerRouter);
-app.use("/upload", uploadRouter);
+app.use("/upload", passport.authenticate("jwt", { session: false }), uploadRouter);
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
   next(createError(404));
