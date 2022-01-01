@@ -16,7 +16,7 @@ var upload = multer({ storage: storage }).single("file");
 
 module.exports = {
   uploadClassList(req, res, next) {
-    upload(req, res, function (err) {
+    upload(req, res, async function (err) {
       if (err instanceof multer.MulterError) {
         return res.status(500).json(err);
       } else if (err) {
@@ -31,14 +31,20 @@ module.exports = {
         worksheets[sheetName] = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
       }
 
-      uploadService.uploadClassList(req.body.id, worksheets.Sheet1);
+      let result = null;
+      try {
+        result = await uploadService.uploadClassList(req.body.id, worksheets.Sheet1);
+      } catch (err) {
+        console.log(err);
+        res.status(400).send(err);
+      }
       fs.unlink(path, (err) => {
         if (err) {
           console.error(err);
           return;
         }
       });
-      return res.status(200).send(req.file);
+      if (result) res.status(200).json(result);
     });
   },
   downloadStudentList: (req, res, next) => {

@@ -5,8 +5,8 @@ const path = require("path");
 const classModel = require("../classes/classModel");
 
 module.exports = {
-  uploadClassList(class_id, student_list) {
-    uploadModel.uploadClassList(class_id, student_list);
+  async uploadClassList(class_id, student_list) {
+    return await uploadModel.uploadClassList(class_id, student_list);
   },
   downloadGradeList: async (class_id) => {
     const result = await uploadModel.getStudentGradeList(class_id);

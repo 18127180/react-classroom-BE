@@ -11,7 +11,7 @@ exports.updateProfile = async (userObj) => {
       return {
         user: data,
         access_token: jwt.sign(data, process.env.ACCESS_TOKEN_SECRET_KEY, {
-          expiresIn: "1h",
+          expiresIn: "12h",
         }),
       };
     }

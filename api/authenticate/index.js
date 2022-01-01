@@ -12,7 +12,7 @@ router.post("/", passport.authenticate("normal_login", { session: false }), func
   res.json({
     user: req.user,
     access_token: jwt.sign(req.user, process.env.ACCESS_TOKEN_SECRET_KEY, {
-      expiresIn: "1h",
+      expiresIn: "12h",
     }),
   });
 });
@@ -53,7 +53,7 @@ router.post("/google", async function (req, res) {
     res.json({
       user: user,
       access_token: jwt.sign(user, process.env.ACCESS_TOKEN_SECRET_KEY, {
-        expiresIn: "1h",
+        expiresIn: "12h",
       }),
     });
   } catch (error) {
@@ -95,7 +95,7 @@ router.post("/facebook", async function (req, res, next) {
       res.status(200).json({
         user: currentUser,
         access_token: jwt.sign(currentUser, process.env.ACCESS_TOKEN_SECRET_KEY, {
-          expiresIn: "1h",
+          expiresIn: "12h",
         }),
       });
     } else {
