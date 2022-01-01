@@ -527,7 +527,9 @@ exports.checkExistSyllabus = async (id) => {
 exports.getGradePersonal = async (class_id, user_id) => {
   try {
     const records = await pool.query(
-      `select temp2.*
+      `select temp2.*,(select expect_score from review_student rs2 join "user" u2 on rs2.student_id = u2.id where u2.id = $2),
+      (select reason from review_student rs2 join "user" u2 on rs2.student_id = u2.id where u2.id = $2),
+      (select rs2.id as review_id from review_student rs2 join "user" u2 on rs2.student_id = u2.id where u2.id = $2)
       from "user" u join (
       select temp1.*, ss.score as grade, ss.student_code from student_syllabus ss join 
       (select s.id as syllabus_id , s.subject_name as syllabus_name, s.order, s.grade as maxGrade 
@@ -543,11 +545,26 @@ exports.getGradePersonal = async (class_id, user_id) => {
   }
 }
 
+exports.getAllGradeReviewByClassId = async (class_id) => {
+  try {
+    const records = await pool.query(
+      `select rs.id, rs.student_id,rs.syllabus_id, temp1.subject_name as syllabus_name, rs.expect_score as grade,temp1.grade as maxGrade, rs.final_score, rs.final_mark, rs.reason , rs.created_at from review_student rs join 
+      (select s.* from grade_structure gs join syllabus s on gs.id = s.grade_structure_id where gs.class_id = $1) as temp1
+      on rs.syllabus_id = temp1.id
+      order by created_at desc`,
+      [class_id]
+    );
+    return records.rows;
+  } catch (error) {
+    return null;
+  }
+}
+
 exports.addReview = async (object) => {
   try {
     const records = await pool.query(
-      `insert into review_student(syllabus_id, student_code, reason, expect_score, final_mark) values ($1,$2,$3,$4,false) returning *`,
-      [object.syllabus_id, object.student_code, object.reason, object.expect_score]
+      `insert into review_student(syllabus_id, student_id, reason, expect_score, final_mark, created_at) values ($1,$2,$3,$4,false,$5) returning *`,
+      [object.syllabus_id, object.student_id, object.reason, object.expect_score, new Date()]
     );
     if (records.rowCount !== 0) return records.rows[0];
     return null;
@@ -559,9 +576,49 @@ exports.addReview = async (object) => {
 
 exports.querySelect = async (query) => {
   try {
-    const records = await pool.query(``+query,[]);
+    const records = await pool.query(`` + query, []);
     return records.rows;
   } catch (error) {
+    return null;
+  }
+}
+
+exports.addComment = async (object) => {
+  try {
+    const records = await pool.query(
+      `insert into comment(review_id, comment, user_id, name_user, created_at, avatar, status) values ($1, $2, $3, $4, $5, $6, $7) returning *`,
+      [object.review_id, object.comment, object.user_id, object.name_user, new Date(), object.avatar, true]
+    );
+    if (records.rowCount !== 0) return records.rows[0];
+    return null;
+  } catch (err) {
+    console.log(err);
+    return null;
+  }
+}
+
+exports.getCommentByReviewId = async (review_id) => {
+  try {
+    const records = await pool.query(
+      `select * from comment where review_id = $1 order by created_at asc`,
+      [review_id]
+    );
+    return records.rows;
+  } catch (error) {
+    return null;
+  }
+}
+
+exports.updateStatusComment = async (review_id) => {
+  try {
+    const records = await pool.query(
+      `UPDATE comment set status = false where review_id = $1 returning *`,
+      [review_id]
+    );
+    if (records.rowCount !== 0) return records.rows[0];
+    return null;
+  } catch (err) {
+    console.log(err);
     return null;
   }
 }

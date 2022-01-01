@@ -376,7 +376,30 @@ exports.getGradePersonal = async (class_id, user_id) => {
   return result;
 };
 
+exports.getAllReviewByClassId = async (class_id) => {
+  const result = await classModel.getAllGradeReviewByClassId(class_id);
+  return result;
+}
+
 exports.addReview = async (object) => {
   const result = await classModel.addReview(object);
+  return result;
+}
+
+exports.sendComment = async (object) => {
+  // console.log(global.io);
+  // io.emit("send_comment", object);
+  // console.log(io.sockets);
+  const result = await classModel.addComment(object);
+  return result;
+}
+
+exports.getCommentByReviewId = async (review_id) => {
+  const result = await classModel.getCommentByReviewId(review_id);
+  return result;
+}
+
+exports.updateStatusComment = async (review_id) => {
+  const result = await classModel.updateStatusComment(review_id);
   return result;
 }

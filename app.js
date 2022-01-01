@@ -1,4 +1,6 @@
 require("dotenv").config();
+const classService = require("./api/classes/classService");
+
 const createError = require("http-errors");
 const express = require("express");
 const path = require("path");
@@ -19,6 +21,7 @@ const userRouter = require("./api/user");
 const uploadRouter = require("./api/upload");
 
 const app = express();
+
 app.disable("etag");
 app.use(passport.initialize());
 const cors = require("cors");
@@ -30,6 +33,7 @@ app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "hbs");
 
 app.use(cors());
+
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -58,6 +62,34 @@ app.use(function (err, req, res, next) {
   // render the error page
   res.status(err.status || 500);
   res.render("error");
+});
+
+const server = require('http').createServer(app);
+const { Server } = require('socket.io');
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"]
+  }
+});
+
+io.on('connection', (socket) => {
+  console.log(socket.id);
+  socket.on("join_room", (data) => {
+    console.log("join room", data);
+    socket.join(data);
+  })
+  socket.on("send_comment", (data) => {
+    socket.to(data.review_id).emit("receive_comment_"+data.review_id, data);
+    classService.sendComment(data);
+  })
+  socket.on("disconnect", () => {
+    console.log("User disconnect");
+  })
+});
+
+server.listen(3001, () => {
+  console.log("SERVER RUNNING");
 });
 
 module.exports = app;
