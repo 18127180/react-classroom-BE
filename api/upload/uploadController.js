@@ -2,6 +2,7 @@ const fs = require("fs");
 const multer = require("multer");
 const xlsx = require("xlsx");
 const uploadService = require("./uploadService");
+const path = require('path');
 
 //multer store files
 const storage = multer.diskStorage({
@@ -70,6 +71,7 @@ module.exports = {
   },
   uploadGradeList(req, res, next) {
     upload(req, res, function (err) {
+      console.log(err);
       if (err instanceof multer.MulterError) {
         return res.status(500).json(err);
       } else if (err) {

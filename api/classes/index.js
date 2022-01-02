@@ -46,4 +46,6 @@ router.get("/all-comment", classController.getComment);
 
 router.put("/update-comment-status", classController.updateStatusComment);
 
+router.put("/update-review", classController.updateReview)
+
 module.exports = router;

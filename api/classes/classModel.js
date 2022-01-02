@@ -527,16 +527,15 @@ exports.checkExistSyllabus = async (id) => {
 exports.getGradePersonal = async (class_id, user_id) => {
   try {
     const records = await pool.query(
-      `select temp2.*,(select expect_score from review_student rs2 join "user" u2 on rs2.student_id = u2.id where u2.id = $2),
-      (select reason from review_student rs2 join "user" u2 on rs2.student_id = u2.id where u2.id = $2),
-      (select rs2.id as review_id from review_student rs2 join "user" u2 on rs2.student_id = u2.id where u2.id = $2)
-      from "user" u join (
-      select temp1.*, ss.score as grade, ss.student_code from student_syllabus ss join 
-      (select s.id as syllabus_id , s.subject_name as syllabus_name, s.order, s.grade as maxGrade 
-      from grade_structure gs join syllabus s on gs.id = s.grade_structure_id
-      where class_id = $1 and s.finalize = true 
-      order by s.order asc) as temp1 on ss.syllabus_id = temp1.syllabus_id
-      ) as temp2 on temp2.student_code = u.student_id where u.id = $2`,
+      `select temp3.*, temp4.expect_score, temp4.reason, temp4.id as review_id from (select temp2.*
+        from "user" u join (
+        select temp1.*, ss.score as grade, ss.student_code from student_syllabus ss join 
+        (select s.id as syllabus_id , s.subject_name as syllabus_name, s.order, s.grade as maxGrade 
+        from grade_structure gs join syllabus s on gs.id = s.grade_structure_id
+        where class_id = $1 and s.finalize = true 
+        order by s.order asc) as temp1 on ss.syllabus_id = temp1.syllabus_id
+        ) as temp2 on temp2.student_code = u.student_id
+        where u.id = $2) as temp3 left join (select rs2.*,u2.student_id as student_code from review_student rs2 join "user" u2 on rs2.student_id = u2.id) as temp4 on (temp3.syllabus_id = temp4.syllabus_id and temp3.student_code = temp4.student_code)`,
       [class_id, user_id]
     );
     return records.rows;
@@ -548,10 +547,11 @@ exports.getGradePersonal = async (class_id, user_id) => {
 exports.getAllGradeReviewByClassId = async (class_id) => {
   try {
     const records = await pool.query(
-      `select rs.id, rs.student_id,rs.syllabus_id, temp1.subject_name as syllabus_name, rs.expect_score as grade,temp1.grade as maxGrade, rs.final_score, rs.final_mark, rs.reason , rs.created_at from review_student rs join 
-      (select s.* from grade_structure gs join syllabus s on gs.id = s.grade_structure_id where gs.class_id = $1) as temp1
-      on rs.syllabus_id = temp1.id
-      order by created_at desc`,
+      `select temp1.*, u.student_id as student_code from "user" u join (
+        select rs.id, rs.student_id,rs.syllabus_id, temp1.subject_name as syllabus_name, rs.expect_score as grade,temp1.grade as maxGrade, rs.final_score, rs.final_mark, rs.reason , rs.created_at from review_student rs join 
+              (select s.* from grade_structure gs join syllabus s on gs.id = s.grade_structure_id where gs.class_id = $1) as temp1
+              on rs.syllabus_id = temp1.id
+              order by created_at asc) as temp1 on u.id = temp1.student_id `,
       [class_id]
     );
     return records.rows;
@@ -586,8 +586,8 @@ exports.querySelect = async (query) => {
 exports.addComment = async (object) => {
   try {
     const records = await pool.query(
-      `insert into comment(review_id, comment, user_id, name_user, created_at, avatar, status) values ($1, $2, $3, $4, $5, $6, $7) returning *`,
-      [object.review_id, object.comment, object.user_id, object.name_user, new Date(), object.avatar, true]
+      `insert into comment(review_id, comment, user_id, name_user, created_at, avatar, status, is_student) values ($1, $2, $3, $4, $5, $6, $7, $8) returning *`,
+      [object.review_id, object.comment, object.user_id, object.name_user, new Date(), object.avatar, true, object.is_student]
     );
     if (records.rowCount !== 0) return records.rows[0];
     return null;
@@ -619,6 +619,18 @@ exports.updateStatusComment = async (review_id) => {
     return null;
   } catch (err) {
     console.log(err);
+    return null;
+  }
+}
+
+exports.updateReview = async (object) => {
+  try {
+    const records = await pool.query(
+      `UPDATE review_student set final_score = $1, final_mark = true where student_id=$2 and syllabus_id=$3`,
+      [object.final_score, object.student_id, object.syllabus_id]
+    );
+    return true;
+  } catch (error) {
     return null;
   }
 }

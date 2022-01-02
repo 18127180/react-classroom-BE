@@ -190,7 +190,6 @@ exports.updateScoreStudent = async (req, res) => {
 
 exports.getClassPersonal = async (req, res) => {
   const isSuccess = await classService.getGradePersonal(req.query.class_id, req.query.user_id);
-  console.log(isSuccess);
   if (isSuccess) {
     res.status(200).json(isSuccess);
   } else {
@@ -227,6 +226,15 @@ exports.getComment = async (req, res) => {
 
 exports.updateStatusComment = async (req, res) => {
   const isSuccess = await classService.updateStatusComment(req.body.review_id);
+  if (isSuccess) {
+    res.status(200).json(isSuccess);
+  } else {
+    res.status(500).json({ message: "not ok" });
+  }
+};
+
+exports.updateReview = async (req, res) => {
+  const isSuccess = await classService.updateReview(req.body);
   if (isSuccess) {
     res.status(200).json(isSuccess);
   } else {
