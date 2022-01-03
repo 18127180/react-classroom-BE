@@ -16,7 +16,7 @@ passport.use(
     async function (email, password, done) {
       await pool
         .query(
-          'SELECT id,first_name,last_name,email,password,avatar,student_id FROM "user" WHERE email=$1',
+          'SELECT id,first_name,last_name,email,password,avatar,student_id,role FROM "user" WHERE email=$1',
           [email]
         )
         .then(async (result) => {
@@ -40,6 +40,7 @@ passport.use(
                 email: result.rows[0].email,
                 avatar: result.rows[0].avatar,
                 student_id: result.rows[0].student_id,
+                role: result.rows[0].role,
               };
               return done(null, user);
             }
