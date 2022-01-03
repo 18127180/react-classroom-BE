@@ -28,7 +28,47 @@ async function changePassword(req, res) {
   }
 }
 
+async function getAdmins(req, res) {
+  try {
+    const pageSize = parseInt(req.query.per_page, 10);
+    const page = parseInt(req.query.page, 10);
+    const orderCreatedAt = req.query.createdAt;
+    const search = req.query.search || "";
+    const [result, count] = await Promise.all([
+      userService.getAdmins(pageSize, page, orderCreatedAt, search),
+      userService.getAdminsCount(),
+    ]);
+    if (result) {
+      res.status(200).json({
+        data: result,
+        page,
+        total: parseInt(count, 10),
+      });
+    } else {
+      res.status(400).send();
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(500).send();
+  }
+}
+
+async function createAdmin(req, res) {
+  try {
+    const result = await userService.createAdmin(req.body);
+    if (result) {
+      res.status(201).send();
+    } else {
+      res.status(400).send();
+    }
+  } catch (err) {
+    res.status(500).send();
+  }
+}
+
 module.exports = {
   updateProfile,
   changePassword,
+  getAdmins,
+  createAdmin,
 };

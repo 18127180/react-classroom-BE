@@ -103,7 +103,7 @@ passport.use(
         });
     } else {
       await pool
-        .query('SELECT id FROM "user" WHERE id=$1', [jwt_payload.id])
+        .query('SELECT id,role FROM "user" WHERE id=$1', [jwt_payload.id])
         .then((result) => {
           if (result.rows.length !== 0) {
             return done(null, result.rows[0]);

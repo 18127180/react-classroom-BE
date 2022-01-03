@@ -31,3 +31,24 @@ exports.changePassword = async (userObj) => {
   await userModel.changePassword(userObj.id, hashPasword);
   return true;
 };
+
+exports.getAdmins = async (pageSize, page, orderCreatedAt, search) => {
+  const admins = await userModel.getAdmins(pageSize, page, orderCreatedAt, search);
+  return admins;
+};
+
+exports.getAdminsCount = async () => {
+  const count = await userModel.getAdminsCount();
+  return count;
+};
+
+exports.createAdmin = async (obj) => {
+  const salt = await bcrypt.genSalt(10);
+  const hashPasword = await bcrypt.hash(obj.password, salt);
+  obj.password = hashPasword;
+
+  if (!obj.role || obj.role === "") obj.role = "Admin";
+
+  const admins = await userModel.createAdmin(obj);
+  return admins;
+};
