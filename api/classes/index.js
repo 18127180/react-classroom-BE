@@ -52,4 +52,6 @@ router.get("/all-channel", classController.getListClassSubcribeSocket)
 
 router.get("/all-notifications", classController.getAllNotification)
 
+router.put("/update-status-notifications", classController.updateStatusNotification)
+
 module.exports = router;

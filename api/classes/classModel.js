@@ -652,8 +652,8 @@ exports.getListClassSubcribeSocket = async (user_id) => {
 exports.addNotificationPublic = async (object) => {
   try {
     const records = await pool.query(
-      `insert into notification(sender_name, message, has_read, link_navigate, time, sender_avatar, class_id, to_role_name) values ($1, $2, $3, $4, $5, $6, $7, $8) returning *`,
-      [object.senderName, object.message, object.hasRead, object.link, new Date(), object.senderAvatar, object.class_id, object.to_role_name]
+      `insert into notification(sender_name, message, has_read, link_navigate, time, sender_avatar, class_id, to_role_name, uuid) values ($1, $2, $3, $4, $5, $6, $7, $8, $9) returning *`,
+      [object.sender_name, object.message, object.has_read, object.link_navigate, new Date(), object.sender_avatar, object.class_id, object.to_role_name, object.uuid]
     );
     if (records.rowCount !== 0) return records.rows[0];
     return null;
@@ -666,8 +666,8 @@ exports.addNotificationPublic = async (object) => {
 exports.addNotificationPrivate = async (object) => {
   try {
     const records = await pool.query(
-      `insert into notification(sender_name, message, has_read, link_navigate, time, sender_avatar, class_id, to_user) values ($1, $2, $3, $4, $5, $6, $7, $8) returning *`,
-      [object.senderName, object.message, object.hasRead, object.link, new Date(), object.senderAvatar, object.class_id, object.to_user]
+      `insert into notification(sender_name, message, has_read, link_navigate, time, sender_avatar, class_id, to_user, uuid) values ($1, $2, $3, $4, $5, $6, $7, $8, $9) returning *`,
+      [object.sender_name, object.message, object.has_read, object.link_navigate, new Date(), object.sender_avatar, object.class_id, object.to_user, object.uuid]
     );
     if (records.rowCount !== 0) return records.rows[0];
     return null;
@@ -689,6 +689,18 @@ exports.getAllNotification = async (user_id) => {
       [user_id]
     );
     return records.rows;
+  } catch (error) {
+    return null;
+  }
+}
+
+exports.updateStatusNotification = async (object) => {
+  try {
+    const records = await pool.query(
+      `UPDATE notification set has_read = $1 where uuid = $2`,
+      [object.has_read, object.uuid]
+    );
+    return true;
   } catch (error) {
     return null;
   }

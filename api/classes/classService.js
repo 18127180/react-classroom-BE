@@ -429,3 +429,8 @@ exports.getAllNotification = async (user_id) => {
   const result = await classModel.getAllNotification(user_id);
   return result;
 }
+
+exports.updateStatusNotification = async (object) => {
+  const result = await classModel.updateStatusNotification(object);
+  return result;
+}

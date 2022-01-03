@@ -259,3 +259,12 @@ exports.getAllNotification = async (req, res) => {
     res.status(500).json({ message: "not ok" });
   }
 };
+
+exports.updateStatusNotification = async (req, res) => {
+  const isSuccess = await classService.updateStatusNotification(req.body);
+  if (isSuccess) {
+    res.status(200).json(isSuccess);
+  } else {
+    res.status(500).json({ message: "not ok" });
+  }
+};
