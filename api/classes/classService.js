@@ -81,6 +81,7 @@ const send_single_mail = async (
       return true;
     })
     .catch((error) => {
+      console.log(error);
       return false;
     });
 };
@@ -401,5 +402,10 @@ exports.getCommentByReviewId = async (review_id) => {
 
 exports.updateStatusComment = async (review_id) => {
   const result = await classModel.updateStatusComment(review_id);
+  return result;
+}
+
+exports.updateReview = async (object) => {
+  const result = await classModel.updateReview(object);
   return result;
 }

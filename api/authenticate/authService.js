@@ -2,6 +2,8 @@ const sgMail = require("@sendgrid/mail");
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
+console.log(process.env.SENDGRID_API_KEY);
+
 function forgotPassword(email) {
   const tempPass = (Math.random() + 1).toString(36).substring(2);
   cache.set(email, tempPass, 1800);
@@ -9,7 +11,7 @@ function forgotPassword(email) {
   const msg = {
     to: email,
     from: {
-      email: "nhanluu838@gmail.com",
+      email: "phucyugi@gmail.com",
       name: "Classroom SPA",
     },
     subject: "Request password",
