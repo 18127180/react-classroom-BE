@@ -634,3 +634,62 @@ exports.updateReview = async (object) => {
     return null;
   }
 }
+
+exports.getListClassSubcribeSocket = async (user_id) => {
+  try {
+    const records = await pool.query(
+      `select ct.class_id, ('teacher') as role_name from "user" u join class_teacher ct on u.id = ct.teacher_id where u.id = $1
+      union 
+      select cs.class_id, ('student') as role_name from "user" u2 join class_student cs on u2.id = cs.student_id where u2.id = $1`,
+      [user_id]
+    );
+    return records.rows;
+  } catch (error) {
+    return null;
+  }
+}
+
+exports.addNotificationPublic = async (object) => {
+  try {
+    const records = await pool.query(
+      `insert into notification(sender_name, message, has_read, link_navigate, time, sender_avatar, class_id, to_role_name) values ($1, $2, $3, $4, $5, $6, $7, $8) returning *`,
+      [object.senderName, object.message, object.hasRead, object.link, new Date(), object.senderAvatar, object.class_id, object.to_role_name]
+    );
+    if (records.rowCount !== 0) return records.rows[0];
+    return null;
+  } catch (err) {
+    console.log(err);
+    return null;
+  }
+}
+
+exports.addNotificationPrivate = async (object) => {
+  try {
+    const records = await pool.query(
+      `insert into notification(sender_name, message, has_read, link_navigate, time, sender_avatar, class_id, to_user) values ($1, $2, $3, $4, $5, $6, $7, $8) returning *`,
+      [object.senderName, object.message, object.hasRead, object.link, new Date(), object.senderAvatar, object.class_id, object.to_user]
+    );
+    if (records.rowCount !== 0) return records.rows[0];
+    return null;
+  } catch (err) {
+    console.log(err);
+    return null;
+  }
+}
+
+exports.getAllNotification = async (user_id) => {
+  try {
+    const records = await pool.query(
+      `select n.* from
+      (select ct.class_id, ('teacher') as role_name from "user" u join class_teacher ct on u.id = ct.teacher_id where u.id = $1
+      union 
+      select cs.class_id, ('student') as role_name from "user" u2 join class_student cs on u2.id = cs.student_id where u2.id = $1) 
+      as temp1 join notification n on ((n.to_role_name = temp1.role_name and n.class_id = temp1.class_id) or (n.to_user = $1 and n.class_id = temp1.class_id))
+      order by time desc`,
+      [user_id]
+    );
+    return records.rows;
+  } catch (error) {
+    return null;
+  }
+}

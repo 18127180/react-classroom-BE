@@ -241,3 +241,21 @@ exports.updateReview = async (req, res) => {
     res.status(500).json({ message: "not ok" });
   }
 };
+
+exports.getListClassSubcribeSocket = async (req, res) => {
+  const isSuccess = await classService.getListClassSubcribeSocket(req.user.id);
+  if (isSuccess) {
+    res.status(200).json(isSuccess);
+  } else {
+    res.status(500).json({ message: "not ok" });
+  }
+};
+
+exports.getAllNotification = async (req, res) => {
+  const isSuccess = await classService.getAllNotification(req.user.id);
+  if (isSuccess) {
+    res.status(200).json(isSuccess);
+  } else {
+    res.status(500).json({ message: "not ok" });
+  }
+};

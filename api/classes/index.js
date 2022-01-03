@@ -48,4 +48,8 @@ router.put("/update-comment-status", classController.updateStatusComment);
 
 router.put("/update-review", classController.updateReview)
 
+router.get("/all-channel", classController.getListClassSubcribeSocket)
+
+router.get("/all-notifications", classController.getAllNotification)
+
 module.exports = router;

@@ -80,8 +80,19 @@ io.on('connection', (socket) => {
     socket.join(data);
   })
   socket.on("send_comment", (data) => {
-    socket.to(data.review_id).emit("receive_comment_"+data.review_id, data);
+    console.log(data);
+    socket.to(data.review_id).emit("receive_comment_" + data.review_id, data);
     classService.sendComment(data);
+  })
+  socket.on("send_notification", (data) => {
+    console.log(data);
+    socket.to("class_" + data.class_id).emit("receive_notification_" + data.class_id + "_" + data.to_role_name, data);
+    classService.addNotificationPublic(data);
+  })
+  socket.on("send_notification_private", (data) => {
+    console.log(data);
+    socket.to("class_private_" + data.to_user).emit("receive_notification_private_" + data.to_user, data);
+    classService.addNotificationPrivate(data);
   })
   socket.on("disconnect", () => {
     console.log("User disconnect");

@@ -409,3 +409,23 @@ exports.updateReview = async (object) => {
   const result = await classModel.updateReview(object);
   return result;
 }
+
+exports.getListClassSubcribeSocket = async (object) => {
+  const result = await classModel.getListClassSubcribeSocket(object);
+  return result;
+}
+
+exports.addNotificationPrivate = async (object) => {
+  const result = await classModel.addNotificationPrivate(object);
+  return result;
+}
+
+exports.addNotificationPublic = async (object) => {
+  const result = await classModel.addNotificationPublic(object);
+  return result;
+}
+
+exports.getAllNotification = async (user_id) => {
+  const result = await classModel.getAllNotification(user_id);
+  return result;
+}
