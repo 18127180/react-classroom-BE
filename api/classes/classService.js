@@ -308,6 +308,7 @@ exports.updateGradeStructure = async (object) => {
         subject_name: item.subject_name,
         grade: item.grade,
         order: item.order,
+        finalize: item.finalize
       };
       if (item?.new) {
         await classModel.addSyllabusCheck(addItem);
@@ -383,6 +384,7 @@ exports.getAllReviewByClassId = async (class_id) => {
 }
 
 exports.addReview = async (object) => {
+  // console.log(object);
   const result = await classModel.addReview(object);
   return result;
 }
@@ -407,6 +409,9 @@ exports.updateStatusComment = async (review_id) => {
 
 exports.updateReview = async (object) => {
   const result = await classModel.updateReview(object);
+  const userInfo =  await classModel.getInfoUserById(object.student_id);
+  console.log(userInfo);
+  const result3 = await classModel.updateScoreStudentSyllabus(object.final_score,userInfo.student_id,object.syllabus_id);
   return result;
 }
 

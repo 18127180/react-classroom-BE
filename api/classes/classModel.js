@@ -377,8 +377,8 @@ exports.addGradeStructure = async (object) => {
 exports.addSyllabus = async (object) => {
   try {
     const records = await pool.query(
-      `insert into syllabus(id,grade_structure_id,subject_name,grade,"order") values($1,$2,$3,$4,$5) returning *`,
-      [object.id, object.grade_structure_id, object.subject_name, object.grade, object.order]
+      `insert into syllabus(id,grade_structure_id,subject_name,grade,"order",finalize) values($1,$2,$3,$4,$5,$6) returning *`,
+      [object.id, object.grade_structure_id, object.subject_name, object.grade, object.order, object.finalize]
     );
     if (records.rowCount !== 0) return records.rows[0];
     return null;
@@ -391,7 +391,7 @@ exports.addSyllabus = async (object) => {
 exports.addSyllabusCheck = async (object) => {
   try {
     const records = await pool.query(
-      `insert into syllabus(grade_structure_id,subject_name,grade,"order") values($1,$2,$3,$4) returning *`,
+      `insert into syllabus(grade_structure_id,subject_name,grade,"order",finalize) values($1,$2,$3,$4,false) returning *`,
       [object.grade_structure_id, object.subject_name, object.grade, object.order]
     );
     if (records.rowCount !== 0) return records.rows[0];
@@ -535,7 +535,8 @@ exports.getGradePersonal = async (class_id, user_id) => {
         where class_id = $1 and s.finalize = true 
         order by s.order asc) as temp1 on ss.syllabus_id = temp1.syllabus_id
         ) as temp2 on temp2.student_code = u.student_id
-        where u.id = $2) as temp3 left join (select rs2.*,u2.student_id as student_code from review_student rs2 join "user" u2 on rs2.student_id = u2.id) as temp4 on (temp3.syllabus_id = temp4.syllabus_id and temp3.student_code = temp4.student_code)`,
+        where u.id = $2) as temp3 left join (select rs2.*,u2.student_id as student_code from review_student rs2 join "user" u2 on rs2.student_id = u2.id) as temp4 on (temp3.syllabus_id = temp4.syllabus_id and temp3.student_code = temp4.student_code)
+        order by temp3.order asc`,
       [class_id, user_id]
     );
     return records.rows;
@@ -548,7 +549,7 @@ exports.getAllGradeReviewByClassId = async (class_id) => {
   try {
     const records = await pool.query(
       `select temp1.*, u.student_id as student_code from "user" u join (
-        select rs.id, rs.student_id,rs.syllabus_id, temp1.subject_name as syllabus_name, rs.expect_score as grade,temp1.grade as maxGrade, rs.final_score, rs.final_mark, rs.reason , rs.created_at from review_student rs join 
+        select rs.id, rs.student_id,rs.syllabus_id, temp1.subject_name as syllabus_name, rs.expect_score as grade,temp1.grade as maxGrade, rs.final_score, rs.final_mark, rs.reason , rs.created_at, rs.real_score from review_student rs join 
               (select s.* from grade_structure gs join syllabus s on gs.id = s.grade_structure_id where gs.class_id = $1) as temp1
               on rs.syllabus_id = temp1.id
               order by created_at asc) as temp1 on u.id = temp1.student_id `,
@@ -563,8 +564,8 @@ exports.getAllGradeReviewByClassId = async (class_id) => {
 exports.addReview = async (object) => {
   try {
     const records = await pool.query(
-      `insert into review_student(syllabus_id, student_id, reason, expect_score, final_mark, created_at) values ($1,$2,$3,$4,false,$5) returning *`,
-      [object.syllabus_id, object.student_id, object.reason, object.expect_score, new Date()]
+      `insert into review_student(syllabus_id, student_id, reason, expect_score, final_mark, created_at, real_score) values ($1,$2,$3,$4,false,$5,$6) returning *`,
+      [object.syllabus_id, object.student_id, object.reason, object.expect_score, new Date(), object.real_score]
     );
     if (records.rowCount !== 0) return records.rows[0];
     return null;
@@ -701,6 +702,18 @@ exports.updateStatusNotification = async (object) => {
       [object.has_read, object.uuid]
     );
     return true;
+  } catch (error) {
+    return null;
+  }
+}
+
+exports.getInfoUserById = async (user_id) => {
+  try {
+    const records = await pool.query(
+      `select * from "user" u where u.id = $1`,
+      [user_id]
+    );
+    return records.rows[0];
   } catch (error) {
     return null;
   }
