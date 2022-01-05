@@ -718,3 +718,66 @@ exports.getInfoUserById = async (user_id) => {
     return null;
   }
 }
+
+exports.getAllClassroom = async (pageSize, page, orderCreatedAt, search) => {
+  try {
+    let tempSearch = null;
+    if (search !== "") {
+      tempSearch = `WHERE (c.name LIKE '%${search}%' OR c.section LIKE '%${search}%' OR c.topic LIKE '%${search}%') `;
+    }
+    let sql =
+    `select * from classroom c ` +
+    (tempSearch !== null ? tempSearch : "") +
+    ` ORDER BY "created_date" ` +
+    orderCreatedAt +
+    ` LIMIT $1 OFFSET $2`;
+    console.log(sql);
+    const result = await pool.query(sql, [pageSize, (page - 1) * pageSize]);
+    return result.rows;
+  } catch (error) {
+    return null;
+  }
+}
+
+exports.getSyllabusByClassId = async (class_id) => {
+  try {
+    const records = await pool.query(
+      `select s.id, s.grade_structure_id, s.subject_name as "name", s.grade as "max",s."order" 
+      from grade_structure gs join syllabus s on gs.id = s.grade_structure_id 
+      where class_id = $1 order by s."order" asc `,
+      [class_id]
+    );
+    return records.rows;
+  } catch (error) {
+    return null;
+  }
+}
+
+exports.getListStudentByClassIdV2 = async (class_id) => {
+  try {
+    const records = await pool.query(
+      `select concat(u.first_name, ' ',u.last_name) as "name", u.avatar from "user" u join class_student cs on u.id = cs.student_id where cs.class_id = $1`,
+      [class_id]
+    );
+    return records.rows;
+  } catch (error) {
+    return null;
+  }
+};
+
+exports.getListTeacherByClassIdV2 = async (class_id) => {
+  try {
+    const records = await pool.query(
+      `select concat(u.first_name, ' ',u.last_name) as "name", u.avatar from "user" u join class_teacher cs on u.id = cs.teacher_id where cs.class_id = $1`,
+      [class_id]
+    );
+    return records.rows;
+  } catch (error) {
+    return null;
+  }
+};
+
+exports.getClassesCount = async () => {
+  const result = await pool.query(`SELECT COUNT(id) AS count FROM classroom`);
+  return result.rows[0].count;
+};

@@ -54,4 +54,6 @@ router.get("/all-notifications", classController.getAllNotification)
 
 router.put("/update-status-notifications", classController.updateStatusNotification)
 
+router.get("/all-classrooms", classController.getAllInfoClass)
+
 module.exports = router;

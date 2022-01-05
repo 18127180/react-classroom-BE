@@ -268,3 +268,28 @@ exports.updateStatusNotification = async (req, res) => {
     res.status(500).json({ message: "not ok" });
   }
 };
+
+exports.getAllInfoClass = async (req, res) => {
+  try {
+    const pageSize = parseInt(req.query.per_page, 10);
+    const page = parseInt(req.query.page, 10);
+    const orderCreatedAt = req.query.createdAt;
+    const search = req.query.search || "";
+    const [result, count] = await Promise.all([
+      classService.getAllInfoClass(pageSize, page, orderCreatedAt, search),
+      classService.getClassesCount(),
+    ]);
+    if (result) {
+      res.status(200).json({
+        data: result,
+        page,
+        total: parseInt(count, 10),
+      });
+    } else {
+      res.status(400).send();
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(500).send();
+  }
+};

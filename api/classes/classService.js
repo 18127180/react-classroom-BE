@@ -344,15 +344,15 @@ exports.getGradeTable = async (class_id) => {
   const gradeStructure = await classModel.getGradeStructure(class_id);
   if (!gradeStructure || gradeStructure.length === 0) return null;
   const syllabus_list = await classModel.getSyllabus(gradeStructure[0].id);
-  let sql =`select temp1.*,ARRAY[`
+  let sql = `select temp1.*,ARRAY[`
   let tail = `(select SUM(score) from (select s.* from grade_structure gs join syllabus s on s.grade_structure_id = gs.id where class_id = temp1.class_id) as temp2 join student_syllabus ss on temp2.id = ss.syllabus_id where ss.student_code = temp1.student_code)] as list_score
   from (select temp5.*, (case when cs.student_id is not null then true else false end) as isExist from (select csc.*, u.avatar, u.id as student_id from class_student_code csc 
     left join "user" u on u.student_id = csc.student_code where class_id = ${class_id}) as temp5
     left join class_student cs on cs.student_id = temp5.student_id ) as temp1`
-  for (item of syllabus_list){
-    sql+=`(select ss.score from syllabus s join student_syllabus ss on s.id = ss.syllabus_id where s.id = ${item.id} and ss.student_code = temp1.student_code),`
+  for (item of syllabus_list) {
+    sql += `(select ss.score from syllabus s join student_syllabus ss on s.id = ss.syllabus_id where s.id = ${item.id} and ss.student_code = temp1.student_code),`
   }
-  sql+=tail;
+  sql += tail;
   const grade_table_list = await classModel.querySelect(sql);
   return {
     id: gradeStructure[0].id,
@@ -411,9 +411,9 @@ exports.updateStatusComment = async (review_id) => {
 
 exports.updateReview = async (object) => {
   const result = await classModel.updateReview(object);
-  const userInfo =  await classModel.getInfoUserById(object.student_id);
+  const userInfo = await classModel.getInfoUserById(object.student_id);
   console.log(userInfo);
-  const result3 = await classModel.updateScoreStudentSyllabus(object.final_score,userInfo.student_id,object.syllabus_id);
+  const result3 = await classModel.updateScoreStudentSyllabus(object.final_score, userInfo.student_id, object.syllabus_id);
   return result;
 }
 
@@ -439,5 +439,23 @@ exports.getAllNotification = async (user_id) => {
 
 exports.updateStatusNotification = async (object) => {
   const result = await classModel.updateStatusNotification(object);
+  return result;
+}
+
+exports.getAllInfoClass = async (pageSize, page, orderCreatedAt, search) => {
+  let allClass = await classModel.getAllClassroom(pageSize, page, orderCreatedAt, search);
+  if (!allClass){
+    return [];
+  }
+  for (let class_info of allClass) {
+    class_info["grade_structure"] = await classModel.getSyllabusByClassId(class_info.id);
+    class_info["teachers"] = await classModel.getListTeacherByClassIdV2(class_info.id);
+    class_info["students"] = await classModel.getListStudentByClassIdV2(class_info.id);
+  }
+  return allClass;
+}
+
+exports.getClassesCount = async () => {
+  const result = await classModel.getClassesCount();
   return result;
 }
