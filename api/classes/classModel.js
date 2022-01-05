@@ -37,8 +37,8 @@ exports.getListStudentByClassId = async (class_id) => {
 exports.createClass = async (classObj) => {
   try {
     const records = await pool.query(
-      "insert into classroom(name,section,topic,description,invitecode) values($1,$2,$3,$4,$5) returning *",
-      [classObj.name, classObj.section, classObj.topic, classObj.description, classObj.invitecode]
+      "insert into classroom(name,section,topic,description,invitecode,created_date) values($1,$2,$3,$4,$5,$6) returning *",
+      [classObj.name, classObj.section, classObj.topic, classObj.description, classObj.invitecode, new Date()]
     );
     if (records.rowCount !== 0) return records.rows[0];
     return null;
