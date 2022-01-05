@@ -346,7 +346,9 @@ exports.getGradeTable = async (class_id) => {
   const syllabus_list = await classModel.getSyllabus(gradeStructure[0].id);
   let sql =`select temp1.*,ARRAY[`
   let tail = `(select SUM(score) from (select s.* from grade_structure gs join syllabus s on s.grade_structure_id = gs.id where class_id = temp1.class_id) as temp2 join student_syllabus ss on temp2.id = ss.syllabus_id where ss.student_code = temp1.student_code)] as list_score
-  from (select csc.*, u.avatar , (case when student_code = student_id then true else false end) as isExist from class_student_code csc left join "user" u on u.student_id = csc.student_code where class_id = ${class_id}) as temp1`
+  from (select temp5.*, (case when cs.student_id is not null then true else false end) as isExist from (select csc.*, u.avatar, u.id as student_id from class_student_code csc 
+    left join "user" u on u.student_id = csc.student_code where class_id = ${class_id}) as temp5
+    left join class_student cs on cs.student_id = temp5.student_id ) as temp1`
   for (item of syllabus_list){
     sql+=`(select ss.score from syllabus s join student_syllabus ss on s.id = ss.syllabus_id where s.id = ${item.id} and ss.student_code = temp1.student_code),`
   }
