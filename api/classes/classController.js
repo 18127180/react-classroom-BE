@@ -293,3 +293,13 @@ exports.getAllInfoClass = async (req, res) => {
     res.status(500).send();
   }
 };
+
+exports.joinClassByCodeBtn = async (req, res) => {
+  console.log(req.body);
+  const isSuccess = await classService.joinClassByCodeBtn(req.user.id, req.body.invite_code);
+  if (isSuccess) {
+    res.status(200).json(isSuccess);
+  } else {
+    res.status(500).json({ message: "not ok" });
+  }
+};
