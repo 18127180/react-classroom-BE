@@ -16,6 +16,14 @@ router.post("/change-password", userController.changePassword);
 
 router.get("/admins", isAdmin, userController.getAdmins);
 
+router.get("/users", isAdmin, userController.getUsers);
+
+router.get("/all-users", isAdmin, userController.getAllUsers);
+
 router.post("/admins", isAdmin, userController.createAdmin);
+
+router.put("/update-status", isAdmin, userController.updateStatusUser);
+
+router.put("/update-student-code", isAdmin, userController.updateStudentCode);
 
 module.exports = router;

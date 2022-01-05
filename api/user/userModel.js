@@ -39,18 +39,30 @@ exports.getUser = async (id) => {
   }
 };
 
+exports.getAllUsers = async () => {
+  try {
+    const records = await pool.query(`SELECT * FROM "user"`, []);
+    if (records.rowCount === 0) {
+      return null;
+    }
+    return records.rows;
+  } catch (err) {
+    return err;
+  }
+};
+
 exports.changePassword = async (id, hashPasword) => {
   await pool.query(`UPDATE "user" SET password=$2 WHERE id=$1`, [id, hashPasword]);
 };
 
 exports.getAdmins = async (pageSize, page, orderCreatedAt, search) => {
-  console.log(orderCreatedAt);
+  // console.log(orderCreatedAt);
   let tempSearch = null;
   if (search !== "") {
     tempSearch = `AND (first_name LIKE '%${search}%' OR last_name LIKE '%${search}%' OR email LIKE '%${search}%') `;
     console.log(tempSearch);
   }
-  console.log(search + "-" + tempSearch);
+  // console.log(search + "-" + tempSearch);
   let sql =
     `SELECT id,first_name,last_name,email,avatar,role,status,"createdAt" FROM "user" WHERE role NOTNULL ` +
     (tempSearch !== null ? tempSearch : "") +
@@ -58,8 +70,24 @@ exports.getAdmins = async (pageSize, page, orderCreatedAt, search) => {
     orderCreatedAt +
     ` LIMIT $1 OFFSET $2`;
   console.log(sql);
+  console.log([pageSize, (page - 1) * pageSize]);
   const result = await pool.query(sql, [pageSize, (page - 1) * pageSize]);
   console.log(result);
+  return result.rows;
+};
+
+exports.getUsers = async (pageSize, page, orderCreatedAt, search) => {
+  let tempSearch = null;
+  if (search !== "") {
+    tempSearch = `AND (first_name LIKE '%${search}%' OR last_name LIKE '%${search}%' OR email LIKE '%${search}%') `;
+  }
+  let sql =
+    `SELECT id,first_name,last_name,email,avatar,role,status,"createdAt", student_id as student_code FROM "user" WHERE role IS NULL ` +
+    (tempSearch !== null ? tempSearch : "") +
+    ` ORDER BY "createdAt" ` +
+    orderCreatedAt +
+    ` LIMIT $1 OFFSET $2`;
+  const result = await pool.query(sql, [pageSize, (page - 1) * pageSize]);
   return result.rows;
 };
 
@@ -68,10 +96,27 @@ exports.getAdminsCount = async () => {
   return result.rows[0].count;
 };
 
+exports.getUsersCount = async () => {
+  const result = await pool.query(`SELECT COUNT(id) AS count FROM "user" WHERE role IS NULL`);
+  return result.rows[0].count;
+};
+
 exports.createAdmin = async (obj) => {
   const result = await pool.query(
     `INSERT INTO "user" (first_name,last_name,email,password,role) VALUES($1,$2,$3,$4,$5)`,
     [obj.first_name, obj.last_name, obj.email, obj.password, obj.role]
   );
+  return result;
+};
+
+exports.updateStatusById = async (object) => {
+  console.log(object);
+  const result = await pool.query(`UPDATE "user" SET status = $2 WHERE id = $1`, [object.id, object.status]);
+  return result;
+};
+
+exports.updateStudentCodeById = async (object) => {
+  console.log(object);
+  const result = await pool.query(`UPDATE "user" SET student_id = $2 WHERE id = $1`, [object.id, object.student_code]);
   return result;
 };

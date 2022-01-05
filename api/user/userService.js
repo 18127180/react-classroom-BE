@@ -37,8 +37,23 @@ exports.getAdmins = async (pageSize, page, orderCreatedAt, search) => {
   return admins;
 };
 
+exports.getUsers = async (pageSize, page, orderCreatedAt, search) => {
+  const users = await userModel.getUsers(pageSize, page, orderCreatedAt, search);
+  return users;
+};
+
 exports.getAdminsCount = async () => {
   const count = await userModel.getAdminsCount();
+  return count;
+};
+
+exports.getUsersCount = async () => {
+  const count = await userModel.getUsersCount();
+  return count;
+};
+
+exports.getAllUsers = async () => {
+  const count = await userModel.getAllUsers();
   return count;
 };
 
@@ -51,4 +66,15 @@ exports.createAdmin = async (obj) => {
 
   const admins = await userModel.createAdmin(obj);
   return admins;
+};
+
+
+exports.updateStatusById = async (object) => {
+  const result = await userModel.updateStatusById(object);
+  return result;
+};
+
+exports.updateStudentCodeById = async (object) => {
+  const result = await userModel.updateStudentCodeById(object);
+  return result;
 };
