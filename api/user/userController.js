@@ -118,6 +118,44 @@ async function updateStudentCode(req, res) {
     res.status(500).json({ message: "Error!" });
   }
 }
+async function getUsers(req, res) {
+  try {
+    const pageSize = parseInt(req.query.per_page, 10);
+    const page = parseInt(req.query.page, 10);
+    const orderCreatedAt = req.query.createdAt;
+    const search = req.query.search || "";
+    const [result, count] = await Promise.all([
+      userService.getUsers(pageSize, page, orderCreatedAt, search),
+      userService.getUsersCount(),
+    ]);
+    if (result) {
+      res.status(200).json({
+        data: result,
+        page,
+        total: count,
+      });
+    } else {
+      res.status(400).send();
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(500).send();
+  }
+}
+
+async function getUsersCount(req, res) {
+  try {
+    const count = parseInt(await userService.getUsersCount(), 10);
+    console.log(count);
+    if (count) {
+      res.status(200).json({ count });
+    } else {
+      res.status(400).send();
+    }
+  } catch (err) {
+    res.status(500).send();
+  }
+}
 
 module.exports = {
   updateProfile,
@@ -127,5 +165,6 @@ module.exports = {
   getUsers,
   getAllUsers,
   updateStatusUser,
-  updateStudentCode
+  updateStudentCode,
+  getUsersCount,
 };

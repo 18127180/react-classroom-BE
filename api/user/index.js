@@ -26,4 +26,6 @@ router.put("/update-status", isAdmin, userController.updateStatusUser);
 
 router.put("/update-student-code", isAdmin, userController.updateStudentCode);
 
+router.get("/users/count", isAdmin, userController.getUsersCount);
+
 module.exports = router;
