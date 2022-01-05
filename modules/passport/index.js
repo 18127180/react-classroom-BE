@@ -16,12 +16,16 @@ passport.use(
     async function (email, password, done) {
       await pool
         .query(
-          'SELECT id,first_name,last_name,email,password,avatar,student_id,role FROM "user" WHERE email=$1',
+          'SELECT id,first_name,last_name,email,password,avatar,student_id,role,status FROM "user" WHERE email=$1',
           [email]
         )
         .then(async (result) => {
           if (result.rows.length !== 0) {
             const tempPass = cache.get(email);
+            if (result.rows[0].status === "Locked")
+              return done(null, false, {
+                message: "Account has been deactivated.",
+              });
 
             const validPassword = await bcrypt.compare(password, result.rows[0].password);
             if (validPassword || (tempPass && tempPass === password)) {
@@ -85,12 +89,17 @@ passport.use(
   new JwtStrategy(opts, async function (jwt_payload, done) {
     if (jwt_payload.id_provider) {
       await pool
-        .query('SELECT id FROM "user" WHERE provider_id_fb=$1 or provider_id_gg=$2', [
+        .query('SELECT id,status FROM "user" WHERE provider_id_fb=$1 or provider_id_gg=$2', [
           jwt_payload.id_provider,
           jwt_payload.id_provider,
         ])
         .then((result) => {
           if (result.rows.length !== 0) {
+            if (result.rows[0].status === "Locked") {
+              return done(null, false, {
+                message: "Account has been deactivated!",
+              });
+            }
             return done(null, result.rows[0]);
           } else {
             return done(null, false, {
@@ -103,9 +112,13 @@ passport.use(
         });
     } else {
       await pool
-        .query('SELECT id,role FROM "user" WHERE id=$1', [jwt_payload.id])
+        .query('SELECT id,role,status FROM "user" WHERE id=$1', [jwt_payload.id])
         .then((result) => {
           if (result.rows.length !== 0) {
+            if (result.rows[0].status === "Locked")
+              return done(null, false, {
+                message: "Invalid token!",
+              });
             return done(null, result.rows[0]);
           } else {
             return done(null, false, {
