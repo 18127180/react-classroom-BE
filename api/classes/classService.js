@@ -348,7 +348,7 @@ exports.getGradeTable = async (class_id) => {
   let tail = `(select SUM(score) from (select s.* from grade_structure gs join syllabus s on s.grade_structure_id = gs.id where class_id = temp1.class_id) as temp2 join student_syllabus ss on temp2.id = ss.syllabus_id where ss.student_code = temp1.student_code)] as list_score
   from (select temp5.*, (case when cs.student_id is not null then true else false end) as isExist from (select csc.*, u.avatar, u.id as student_id from class_student_code csc 
     left join "user" u on u.student_id = csc.student_code where class_id = ${class_id}) as temp5
-    left join class_student cs on cs.student_id = temp5.student_id ) as temp1`
+    left join class_student cs on (cs.student_id = temp5.student_id and cs.class_id = ${class_id}) ) as temp1`
   for (item of syllabus_list) {
     sql += `(select ss.score from syllabus s join student_syllabus ss on s.id = ss.syllabus_id where s.id = ${item.id} and ss.student_code = temp1.student_code),`
   }
@@ -444,7 +444,7 @@ exports.updateStatusNotification = async (object) => {
 
 exports.getAllInfoClass = async (pageSize, page, orderCreatedAt, search) => {
   let allClass = await classModel.getAllClassroom(pageSize, page, orderCreatedAt, search);
-  if (!allClass){
+  if (!allClass) {
     return [];
   }
   for (let class_info of allClass) {
@@ -458,4 +458,33 @@ exports.getAllInfoClass = async (pageSize, page, orderCreatedAt, search) => {
 exports.getClassesCount = async () => {
   const result = await classModel.getClassesCount();
   return result;
+}
+
+exports.joinClassByCodeBtn = async (student_id, join_code) => {
+  const dataStudent = await classModel.getInfoUserById(student_id);
+  const dataClass = await classModel.getClassDataByInviteCode(join_code);
+  if (!dataClass || !dataStudent) {
+    return null;
+  }
+  const isExist = await classModel.checkExistStudentInClass(dataClass.id, student_id);
+  if (isExist) {
+    return {
+      status: "FAILED",
+      msg: "You have already joined this class!"
+    };
+  }
+  const isExistTeacher = await classModel.checkExistTeacherInClass(dataClass.id, student_id);
+  if (isExistTeacher) {
+    return {
+      status: "FAILED",
+      msg: "You have already joined this class!"
+    };
+  }
+  // data = await classModel.joinClass(dataClass.id, student_id);
+  const result = await classModel.addQueueUser(dataStudent.email,"STUDENT",dataClass.id);
+  return {
+    status: "SUCCESS",
+    msg: "Join class success!",
+    path: "/invite/" + dataClass.id + "?role=STUDENT"
+  };
 }

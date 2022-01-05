@@ -781,3 +781,27 @@ exports.getClassesCount = async () => {
   const result = await pool.query(`SELECT COUNT(id) AS count FROM classroom`);
   return result.rows[0].count;
 };
+
+exports.checkExistStudentInClassById = async (student_id) => {
+  try {
+    const records = await pool.query(
+      "select * from class_student where student_id = $1",
+      [student_id]
+    );
+    return records.rowCount;
+  } catch (error) {
+    return null;
+  }
+};
+
+exports.checkExistTeacherInClassById = async (student_id) => {
+  try {
+    const records = await pool.query(
+      "select * from class_teacher where teacher_id = $1",
+      [student_id]
+    );
+    return records.rowCount;
+  } catch (error) {
+    return null;
+  }
+};

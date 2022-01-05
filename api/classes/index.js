@@ -56,4 +56,6 @@ router.put("/update-status-notifications", classController.updateStatusNotificat
 
 router.get("/all-classrooms", classController.getAllInfoClass)
 
+router.post("/join-by-code", classController.joinClassByCodeBtn);
+
 module.exports = router;
