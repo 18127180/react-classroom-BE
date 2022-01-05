@@ -74,9 +74,20 @@ exports.updateStatusById = async (object) => {
 };
 
 exports.updateStudentCodeById = async (object) => {
+  const studentExist = await userModel.checkStudentId(object.student_code);
+  if (studentExist){
+    return null;
+  }
+  const curUser = await userModel.getUser(object.id);
+  if (curUser.student_id)
+  {
+    const result1 = await userModel.updateStudentCodeInClassSTC(object.student_code, curUser.student_id);
+    const result2 = await userModel.updateStudentCodeInSyllabus(object.student_code, curUser.student_id);
+  }
   const result = await userModel.updateStudentCodeById(object);
   return result;
 };
+
 exports.getUsers = async (pageSize, page, orderCreatedAt, search) => {
   const admins = await userModel.getUsers(pageSize, page, orderCreatedAt, search);
   return admins;

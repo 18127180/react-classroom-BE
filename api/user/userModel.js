@@ -119,12 +119,45 @@ exports.updateStatusById = async (object) => {
 };
 
 exports.updateStudentCodeById = async (object) => {
-  console.log(object);
   const result = await pool.query(`UPDATE "user" SET student_id = $2 WHERE id = $1`, [
     object.id,
     object.student_code,
   ]);
   return result;
+};
+
+exports.updateStudentCodeInClassSTC = async (new_code, old_code) => {
+  const result = await pool.query(`UPDATE class_student_code SET student_code = $1 WHERE student_code = $2`, [
+    new_code,
+    old_code
+  ]);
+  return result;
+};
+
+exports.updateStudentCodeInSyllabus = async (new_code, old_code) => {
+  const result = await pool.query(`UPDATE student_syllabus SET student_code = $1 WHERE student_code = $2`, [
+    new_code,
+    old_code
+  ]);
+  return result;
+};
+
+exports.checkStudentIdInClassSTC = async (student_code) => {
+  try {
+    const records = await pool.query(`SELECT * FROM class_student_code WHERE student_code=$1`, [student_code]);
+    return records.rowCount;
+  } catch (err) {
+    return err;
+  }
+};
+
+exports.checkStudentIdInSyllabus = async (student_code) => {
+  try {
+    const records = await pool.query(`SELECT * FROM student_syllabus WHERE student_code=$1`, [student_code]);
+    return records.rowCount;
+  } catch (err) {
+    return err;
+  }
 };
 // exports.getUsers = async (pageSize, page, orderCreatedAt, search) => {
 //   let tempSearch = null;
