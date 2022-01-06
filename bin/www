@@ -26,7 +26,8 @@ const io = new Server(server, {
   cors: {
     origin: process.env.FRONTEND_HOST,
     methods: ["GET", "POST"]
-  }
+  },
+  allowEIO3: true
 });
 
 io.on('connection', (socket) => {
