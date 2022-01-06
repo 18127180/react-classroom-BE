@@ -26,7 +26,7 @@ app.disable("etag");
 app.use(passport.initialize());
 const cors = require("cors");
 
-const allowedOrigins = [process.env.FRONTEND_HOST, "http://yourapp.com"];
+const allowedOrigins = ["http://localhost:3000", "http://yourapp.com"];
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -64,43 +64,34 @@ app.use(function (err, req, res, next) {
   res.render("error");
 });
 
-const server = require('http').createServer(app);
-const { Server } = require('socket.io');
-const io = new Server(server, {
-  cors: {
-    origin: process.env.FRONTEND_HOST,
-    methods: ["GET", "POST"]
-  }
-});
+// const server = require('http').createServer(app);
+// const socketio = require('socket.io');
+// const io = socketio(server);
 
-io.on('connection', (socket) => {
-  console.log(socket.id);
-  socket.on("join_room", (data) => {
-    console.log("join room", data);
-    socket.join(data);
-  })
-  socket.on("send_comment", (data) => {
-    console.log(data);
-    socket.to(data.review_id).emit("receive_comment_" + data.review_id, data);
-    classService.sendComment(data);
-  })
-  socket.on("send_notification", (data) => {
-    console.log(data);
-    socket.to("class_" + data.class_id).emit("receive_notification_" + data.class_id + "_" + data.to_role_name, data);
-    classService.addNotificationPublic(data);
-  })
-  socket.on("send_notification_private", (data) => {
-    console.log(data);
-    socket.to("class_private_" + data.to_user).emit("receive_notification_private_" + data.to_user, data);
-    classService.addNotificationPrivate(data);
-  })
-  socket.on("disconnect", () => {
-    console.log("User disconnect");
-  })
-});
-
-server.listen(3001, () => {
-  console.log("SERVER RUNNING");
-});
+// io.on('connection', (socket) => {
+//   console.log(socket.id);
+//   socket.on("join_room", (data) => {
+//     console.log("join room", data);
+//     socket.join(data);
+//   })
+//   socket.on("send_comment", (data) => {
+//     console.log(data);
+//     socket.to(data.review_id).emit("receive_comment_" + data.review_id, data);
+//     classService.sendComment(data);
+//   })
+//   socket.on("send_notification", (data) => {
+//     console.log(data);
+//     socket.to("class_" + data.class_id).emit("receive_notification_" + data.class_id + "_" + data.to_role_name, data);
+//     classService.addNotificationPublic(data);
+//   })
+//   socket.on("send_notification_private", (data) => {
+//     console.log(data);
+//     socket.to("class_private_" + data.to_user).emit("receive_notification_private_" + data.to_user, data);
+//     classService.addNotificationPrivate(data);
+//   })
+//   socket.on("disconnect", () => {
+//     console.log("User disconnect");
+//   })
+// });
 
 module.exports = app;
