@@ -26,7 +26,7 @@ app.disable("etag");
 app.use(passport.initialize());
 const cors = require("cors");
 
-const allowedOrigins = ["http://localhost:3000", "http://yourapp.com"];
+const allowedOrigins = [process.env.FRONTEND_HOST, "http://yourapp.com"];
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -68,7 +68,7 @@ const server = require('http').createServer(app);
 const { Server } = require('socket.io');
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: process.env.FRONTEND_HOST,
     methods: ["GET", "POST"]
   }
 });
