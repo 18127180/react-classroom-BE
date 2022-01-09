@@ -46,7 +46,7 @@ module.exports = {
         }
       });
       if (result) res.status(200).json(result);
-      res.status(400).send("Something's wrong");
+      else res.status(400).send("Something's wrong");
     });
   },
   downloadStudentList: (req, res, next) => {
