@@ -1,11 +1,15 @@
 const userModel = require("./userModel");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const classModel =  require("../classes/classModel");
 
 exports.updateProfile = async (userObj) => {
+  const userInfo = await classModel.getInfoUserById(userObj.id);
   const ifExistStudentId = await userModel.checkStudentId(userObj.student_id);
   if (ifExistStudentId && ifExistStudentId.id !== userObj.id) return null;
   else {
+    const result1 = await userModel.updateStudentCodeInClassSTC(userObj.student_id, userInfo.student_id);
+    const result2 = await userModel.updateStudentCodeInSyllabus(userObj.student_id, userInfo.student_id);
     const data = await userModel.updateProfile(userObj);
     if (data) {
       return {
