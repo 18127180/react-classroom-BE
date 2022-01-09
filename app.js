@@ -19,6 +19,7 @@ const authRouter = require("./api/authenticate");
 const sendMailRouter = require("./api/sendMail");
 const userRouter = require("./api/user");
 const uploadRouter = require("./api/upload");
+const verifiedRouter = require("./api/verified");
 
 const app = express();
 
@@ -47,6 +48,7 @@ app.use("/syllabus", passport.authenticate("jwt", { session: false }), syllabusR
 app.use("/sendMail", sendMailRouter);
 app.use("/auth", authRouter);
 app.use("/register", registerRouter);
+app.use("/verified", verifiedRouter);
 app.use("/upload", passport.authenticate("jwt", { session: false }), uploadRouter);
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

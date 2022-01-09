@@ -29,8 +29,8 @@ exports.udpateUserPassword = async (email, password) => {
 exports.create = async (userObj) => {
   try {
     const records = await pool.query(
-      'insert into "user" (first_name,last_name,password,email) values($1,$2,$3,$4)',
-      [userObj.first_name, userObj.last_name, userObj.password, userObj.email]
+      'insert into "user" (first_name,last_name,password,email, status) values($1,$2,$3,$4,$5)',
+      [userObj.first_name, userObj.last_name, userObj.password, userObj.email, 'Locked']
     );
     return records;
   } catch (err) {
