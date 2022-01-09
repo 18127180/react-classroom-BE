@@ -2,7 +2,7 @@ const fs = require("fs");
 const multer = require("multer");
 const xlsx = require("xlsx");
 const uploadService = require("./uploadService");
-const path = require('path');
+const path = require("path");
 
 //multer store files
 const storage = multer.diskStorage({
@@ -46,6 +46,7 @@ module.exports = {
         }
       });
       if (result) res.status(200).json(result);
+      res.status(400).send("Something's wrong");
     });
   },
   downloadStudentList: (req, res, next) => {
