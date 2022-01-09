@@ -342,8 +342,9 @@ exports.updateGradeStructure = async (object) => {
 
 exports.getGradeTable = async (class_id) => {
   const gradeStructure = await classModel.getGradeStructure(class_id);
-  if (!gradeStructure || gradeStructure.length === 0) return null;
-  const syllabus_list = await classModel.getSyllabus(gradeStructure[0].id);
+  console.log(gradeStructure);
+  // if (!gradeStructure || gradeStructure.length === 0) return null;
+  const syllabus_list = await classModel.getSyllabus(gradeStructure[0]?.id);
   let sql = `select temp1.*,ARRAY[`
   let tail = `(select SUM(score) from (select s.* from grade_structure gs join syllabus s on s.grade_structure_id = gs.id where class_id = temp1.class_id) as temp2 join student_syllabus ss on temp2.id = ss.syllabus_id where ss.student_code = temp1.student_code)] as list_score
   from (select temp5.*, (case when cs.student_id is not null then true else false end) as isExist from (select csc.*, u.avatar, u.id as student_id from class_student_code csc 
@@ -355,10 +356,10 @@ exports.getGradeTable = async (class_id) => {
   sql += tail;
   const grade_table_list = await classModel.querySelect(sql);
   return {
-    id: gradeStructure[0].id,
-    class_id: gradeStructure[0].class_id,
-    topic: gradeStructure[0].topic,
-    description: gradeStructure[0].description,
+    id: gradeStructure[0]?.id,
+    class_id: gradeStructure[0]?.class_id,
+    topic: gradeStructure[0]?.topic,
+    description: gradeStructure[0]?.description,
     list_header: syllabus_list,
     grade_table_list: grade_table_list
   };
