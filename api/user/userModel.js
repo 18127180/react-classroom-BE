@@ -102,6 +102,8 @@ exports.getUsersCount = async () => {
 };
 
 exports.createAdmin = async (obj) => {
+  const isExist = await pool.query('SELECT id FROM "user" WHERE email=$1', [obj.email]);
+  if (isExist.rowCount > 0) return null;
   const result = await pool.query(
     `INSERT INTO "user" (first_name,last_name,email,password,role) VALUES($1,$2,$3,$4,$5)`,
     [obj.first_name, obj.last_name, obj.email, obj.password, obj.role]
@@ -127,24 +129,26 @@ exports.updateStudentCodeById = async (object) => {
 };
 
 exports.updateStudentCodeInClassSTC = async (new_code, old_code) => {
-  const result = await pool.query(`UPDATE class_student_code SET student_code = $1 WHERE student_code = $2`, [
-    new_code,
-    old_code
-  ]);
+  const result = await pool.query(
+    `UPDATE class_student_code SET student_code = $1 WHERE student_code = $2`,
+    [new_code, old_code]
+  );
   return result;
 };
 
 exports.updateStudentCodeInSyllabus = async (new_code, old_code) => {
-  const result = await pool.query(`UPDATE student_syllabus SET student_code = $1 WHERE student_code = $2`, [
-    new_code,
-    old_code
-  ]);
+  const result = await pool.query(
+    `UPDATE student_syllabus SET student_code = $1 WHERE student_code = $2`,
+    [new_code, old_code]
+  );
   return result;
 };
 
 exports.checkStudentIdInClassSTC = async (student_code) => {
   try {
-    const records = await pool.query(`SELECT * FROM class_student_code WHERE student_code=$1`, [student_code]);
+    const records = await pool.query(`SELECT * FROM class_student_code WHERE student_code=$1`, [
+      student_code,
+    ]);
     return records.rowCount;
   } catch (err) {
     return err;
@@ -153,7 +157,9 @@ exports.checkStudentIdInClassSTC = async (student_code) => {
 
 exports.checkStudentIdInSyllabus = async (student_code) => {
   try {
-    const records = await pool.query(`SELECT * FROM student_syllabus WHERE student_code=$1`, [student_code]);
+    const records = await pool.query(`SELECT * FROM student_syllabus WHERE student_code=$1`, [
+      student_code,
+    ]);
     return records.rowCount;
   } catch (err) {
     return err;
